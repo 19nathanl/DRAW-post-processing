@@ -2,13 +2,61 @@
 # TODO : add error tags/codes to the value at each return statement if/when values are altered in any way
 
 import config
+import sql_commands as sql
+import database_connection as db
 
 
 ##################### DIRECT EDITING / FIXING METHODS #####################
 
-# references previous values to find the previous leading digits
-def reference_previous_values(entry):
-    pass
+# references previous values in the ledger sheet(s); depending on chosen option, finds and returns previous leading digits (to use),
+# or returns entire value that contains necessary leading digit
+def reference_previous_values(entry, option):
+    def modular_code_block(entry, command, step):
+        if command == -1:
+            return -1
+        db.cursor.execute(command)
+        list_entries = db.cursor.fetchall()
+        list_values = [item[1] for item in list_entries]
+        if step == 2 and len(list_values) == 0:
+            return None
+
+        start_index = 0
+        if (step == 1) or (step == 2 and counter == 0):
+            start_index = list_values.index(entry[1])
+        elif step == 2 and counter > 0:
+            start_index = len(list_values)
+
+        try:
+            for i in range(start_index - 1, -1, -1):
+                try:
+                    if (list_values[i][0:2] in config.possible_lead_digits) and (config.possible_pressure_formats(list_values[i])):
+                        match option:
+                            case 'leading_digits':
+                                return list_values[i][0:2]
+                            case 'whole_value':
+                                return list_values[i]
+                except TypeError:
+                    pass
+        except ValueError:
+            pass
+
+    result = modular_code_block(entry, sql.check_1_command(entry), 1)
+    if result is not None:
+        if result == -1:
+            return None
+        return result  # TODO : be able to return information about referenced value for pressure / phase 1 error table
+    else:
+        counter = 0
+        while True:
+            result = modular_code_block(entry, sql.check_2_command(entry, counter), 2)
+            if result is not None:
+                if result == -1:
+                    return None
+                return result  # TODO : be able to return information about referenced value for pressure / phase 1 error table
+            else:
+                counter += 1
+                if counter > 100:
+                    print('verify if loop is infinite!')
 
 
 # remove any spaces present in the data entry
