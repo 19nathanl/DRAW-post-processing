@@ -4,38 +4,53 @@ import workflow_methods_master as methods
 
 
 def f1(entry):
-    raw_value = entry[1]
-    value = methods.remove_spaces(raw_value)
+    value = entry[1]
 
-    # Checking to see if raw pressure value is of form XX.XXX
+    # Checking to see if raw pressure value is already of form XX.XXX
     if methods.desired_pressure_format(value):
         return entry
 
-    # if not of the right form initially, corrects format and returns entire row (i)
+    elif methods.disregarded_value(value):
+        pass  # TODO : flag system/updating corrected table with disregarded value as is (?) add else statement if this block doesn't break loop
+
+    # if not of the right form initially, corrects format and returns entry with corrected value
     else:
-        if methods.disregarded_value(value):
-            pass  # TODO : flag system/updating corrected table with disregarded value as is (?) add else statement if this block doesn't break loop
+        value = methods.remove_spaces(value)
+        value = methods.correct_double_decimals(value)
+        value = methods.remove_alphabetical_char(value)
+        value = methods.remove_unexpected_characters(value)
+
+        # checking again if pressure value is of form XX.XXX after simple clean-up methods
+        if methods.desired_pressure_format(value):
+            entry[1] = value
+            return entry
 
         # TODO : 'Illegible' entries
         # TODO : Add 'else' conditions to all code blocks below to make sure that all entries are accounted for
-
-        value = methods.correct_double_decimals(value)
-        value = methods.remove_unexpected_characters(value)
-        value = methods.remove_alphabetical_char(value)
+        # TODO : return all values as **floats** so they can be processed as necessary in phase 2
 
         if len(value) == 5:
             if value.isnumeric():
-                entry[1] = float(value) / 1000  # TODO : return whole row for next phase
+                entry[1] = float(value) / 1000  # TODO : return entry
             # checking and fixing accordingly if pressure value of form 0.XXX, 2.XXX, or 3.XXX
             elif methods.float_decimal_index(value) == 1:
                 match int(value[0]):
                     case 2:
                         value = methods.insert_element_at_index(value, 1, '9')
-                        pass  # TODO : return entry and whole row
+                        pass  # TODO : return entry
                     case 3:
                         value = methods.insert_element_at_index(value, 1, '0')
-                        pass  # TODO : return entry and whole row
+                        pass  # TODO : return entry
                     case 0:
+                        leading_digits = methods.reference_previous_values(entry, 'whole_value')
+                        if leading_digits is not None:
+                            value = list(value)
+                            value.pop(0)
+                            value.insert(0, leading_digits)
+                            ''.join(value)  # TODO : return entry
+                        else:
+                            pass  # TODO : determine what to do if leading digits not found / FLAG
+
                         pass  # TODO : Remove zero, use reference_previous_value(), replace missing leading digits as necessary and move to phase 2
                     case _:
                         pass  # TODO : flag
@@ -48,16 +63,16 @@ def f1(entry):
         elif len(value) == 6:
             # value of form XXXXXX:
             if value.isnumeric():
-                methods.replace_with_decimal(value, 2)  # TODO : return entry and row
+                methods.replace_with_decimal(value, 2)  # TODO : return entry
             # value of form XXX.XX:
             elif methods.float_decimal_index(value) == 4:
-                entry[1] = float(value) / 10  # TODO : return whole row for next phase
+                entry[1] = float(value) / 10  # TODO : return entry
             # value of form XXXX.X:
             elif methods.float_decimal_index(value) == 5:
-                entry[1] = float(value) / 100  # TODO : return whole row for next phase
+                entry[1] = float(value) / 100  # TODO : return entry
             # value of form XX.XXX where decimal is instead one of ( '/'  ';'  ','  '-' )
             elif methods.pressure_decimal_alternate(value):
-                entry[1] = methods.replace_with_decimal(value, 2)  # TODO : return whole row for next phase
+                entry[1] = methods.replace_with_decimal(value, 2)  # TODO : return entry
             else:
                 pass  # TODO : flag
 
@@ -70,7 +85,13 @@ def f1(entry):
                 pass  # TODO : Remove value
             # value of form .XXX:
             elif methods.float_decimal_index(value) == 0:
-                pass  # TODO : execute referencing_previous_value() to add previous digits
+                leading_digits = methods.reference_previous_values(entry, 'leading_digits')
+                if leading_digits is not None:
+                    value = list(value)
+                    value.insert(0, leading_digits)
+                    ''.join(value)  # TODO : return entry
+                else:
+                    pass  # TODO : determine what to do if leading digits not found / FLAG
             # value of form XX.X:
             elif methods.float_decimal_index(value) == 2:
                 pass  # TODO : refer to document
@@ -86,7 +107,14 @@ def f1(entry):
         elif len(value) == 3:
             # value of form XXX:
             if value.isnumeric():
-                pass  # TODO : reference previous leading digits
+                leading_digits = methods.reference_previous_values(entry, 'leading_digits')
+                if leading_digits is not None:
+                    value = list(value)
+                    value.insert(0, leading_digits)
+                    value.insert(1, '.')
+                    ''.join(value)  # TODO : return entry
+                else:
+                    pass  # TODO : determine what to do if leading digits not found / FLAG
             index = methods.float_decimal_index(value)
             match index:
                 # value of form .XX:
@@ -108,7 +136,14 @@ def f1(entry):
                 pass  # TODO : refer to document
             # value of form .X:
             elif methods.float_decimal_index(value) == 0:
-                pass  # TODO : add zeros and reference previous values
+                leading_digits = methods.reference_previous_values(entry, 'leading_digits')
+                if leading_digits is not None:
+                    value = list(value)
+                    value.insert(0, leading_digits)
+                    value.append('00')
+                    ''.join(value)  # TODO : return entry
+                else:
+                    pass  # TODO : determine what to do if leading digits not found / FLAG
             else:
                 pass  # TODO : flag
 
@@ -116,11 +151,11 @@ def f1(entry):
             # value of form XX.XXXX:
             if methods.float_decimal_index(value) == 2 and (value[:2] in ['29', '30']):
                 value = methods.remove_elements_at_indices(value, [5])
-                pass  # TODO : return entry and whole row
+                pass  # TODO : return entry
             # value of form XXX.XXX:
             elif methods.float_decimal_index(value) == 3:
                 value = methods.remove_elements_at_indices(value, 1)
-                pass  # TODO : return entry and whole row
+                pass  # TODO : return entry
             else:
                 pass  # TODO : flag
 
@@ -128,7 +163,7 @@ def f1(entry):
             # value of form XX.XXXXX:
             if methods.float_decimal_index(value) == 2:
                 value = methods.remove_trailing_digits(value, 2)
-                pass  # TODO : return value and whole row
+                pass  # TODO : return entry
             else:
                 pass  # TODO : flag
 
