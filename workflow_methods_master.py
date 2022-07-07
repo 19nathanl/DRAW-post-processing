@@ -9,8 +9,8 @@ import database_connection as db
 ##################### DIRECT EDITING / FIXING METHODS #####################
 
 # references previous values in the ledger sheet(s); depending on chosen option, finds and returns previous leading digits (to use),
-# or returns entire value that contains necessary leading digit
-def reference_previous_values(entry, option):
+# or returns entire value that contains necessary leading digits
+def reference_previous_values(entry, option):  # TODO : determine if 'option' is needed at all
     def modular_code_block(entry, command, step):
         if command == -1:
             return -1
@@ -44,7 +44,7 @@ def reference_previous_values(entry, option):
     if result is not None:
         if result == -1:
             return None
-        return result  # TODO : be able to return information about referenced value for pressure / phase 1 error table
+        return result  # TODO : be able to return information about referenced value for pressure / phase 1 error table (using 'entry' indices)
     else:
         counter = 0
         while True:
@@ -52,7 +52,7 @@ def reference_previous_values(entry, option):
             if result is not None:
                 if result == -1:
                     return None
-                return result  # TODO : be able to return information about referenced value for pressure / phase 1 error table
+                return result  # TODO : be able to return information about referenced value for pressure / phase 1 error table (using 'entry' indices)
             else:
                 counter += 1
                 if counter > 100:
@@ -70,7 +70,6 @@ def remove_spaces(value):
 
 
 # remove double decimals '..' in the data entry if instance is surrounded by a digit on both sides
-# TODO : find a way to get rid of multiple instances of double decimals
 def correct_double_decimals(value):
     while '..' in value:
         index = value.index('..')
@@ -144,15 +143,10 @@ def replace_with_decimal(value, index):
 
 # removes a set amount of trailing digits from a number (specified by 'number' parameter)
 def remove_trailing_digits(value, number):
-    value = list(value)
-    for i in range(number):
-        if i == '.':
-            break
-        value.pop(len(value) - 1)
-    return ''.join(value)
+    return value[:len(value) - number]
 
 
-# removes character(s) at given indices; adaptable to a single index or a list of them
+# removes character(s) at given indices; adaptable to single index input, or a list of indices ('indices' parameter)
 def remove_elements_at_indices(value, indices):
     value = list(value)
     if type(indices) == int:
@@ -178,7 +172,7 @@ def insert_element_at_index(value, index, element):
 def pressure_range(value):
     try:
         if (float(value) < config.pressure_min) or (float(value) > config.pressure_max):
-            pass  # TODO : add flag system
+            pass  # TODO : flag
     except ValueError:
         print("Format-checked value couldn't be treated as a number: " + str(value))
 
@@ -231,3 +225,24 @@ def removable_plus_minus(value):
         return False
     except ValueError:
         return False
+
+
+# checks if value for particular field has fluctuated by more than 'amount' specified by parameter since previous timestamp on the same day
+def fluctuation_exceeds(value, entry, amount):
+    sql_ref = sql.ref_prev_value(entry)
+    db.cursor.execute(sql_ref)
+    entries_same_day = db.cursor.fetchall()
+    values_same_day = [item[1] for item in entries_same_day]
+    index = values_same_day.index(value)
+    try:
+        if index - 1 < 0:
+            return False
+        if abs(float(values_same_day[index]) - float(values_same_day[index - 1])) > amount:
+            return True
+    except TypeError:
+        return False
+    except ValueError:
+        return False
+    except IndexError:
+        return False
+    return False

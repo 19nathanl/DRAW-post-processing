@@ -47,3 +47,13 @@ def check_2_command(entry, counter):
     if field_id in [67, 69]:
         return main_command[:len(main_command) - 1] + " WHERE field_id IN (67,69) " \
                                                         "AND observation_date LIKE '%{}%' ".format(str(observation_date)[:10])
+
+
+# MySQL command to find value for same field_id and up one row in the ledger sheet (i.e. in the previous timestamp)
+def ref_prev_value(entry):
+    user_id = entry[2]
+    field_id = entry[4]
+    observation_date = entry[9]
+    return main_command[:len(main_command) - 1] + " WHERE field_id = {} " \
+                                                  "AND observation_date LIKE '%{}%' " \
+                                                  "AND user_id = {};".format(field_id, str(observation_date)[:10], user_id)
