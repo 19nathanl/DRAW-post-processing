@@ -14,8 +14,8 @@ def filter_by_id(post_process_id, entry):
     # filter each data_entry by its post_process_id to its own algorithm
     match post_process_id:
         case 1:
-            entry = f1.f1(entry)
-            range_consistency_checked_value = r1.r1(entry)
+            f1.f1(entry)
+            # range_consistency_checked_value = r1.r1(entry)
             # then update corrected table with this new value above
 
         case 2:

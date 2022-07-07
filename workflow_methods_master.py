@@ -166,6 +166,22 @@ def insert_element_at_index(value, index, element):
     return ''.join(value)
 
 
+def update_corrected_pressure_table(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date):
+    sql_command = "INSERT INTO pressure_entries_corrected " \
+                  "(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date) " \
+                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    db.cursor.execute(sql_command, (id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date))
+    db.db.commit()
+
+
+def update_flagged_pressure_table(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date):
+    sql_command = "INSERT INTO pressure_entries_flagged " \
+                  "(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date) " \
+                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    db.cursor.execute(sql_command, (id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date))
+    db.db.commit()
+
+
 ##################### CONDITIONAL STATEMENT CHECKS BELOW #####################
 
 # local sanity check for pressure value  TODO : eventually replace this with universal method for local check, and match-case with field_id
