@@ -1,10 +1,11 @@
 import mysql.connector
 import sql_commands
+import os
 
 # connection to copy of database on local machine
 db = mysql.connector.connect(
-    user='',
-    password='',
+    user=os.environ.get('DRAW_local_db_user'),
+    password=os.environ.get('DRAW_local_db_pass'),
     database='climatedatarescuetest',
     host='localhost'
 )

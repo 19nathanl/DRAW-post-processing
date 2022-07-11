@@ -18,11 +18,14 @@ def reference_previous_values(entry, option):  # TODO : determine if 'option' is
         list_entries = db.cursor.fetchall()
         list_values = [item[1] for item in list_entries]
         if step == 2 and len(list_values) == 0:
-            return None
+            return -1
 
         start_index = 0
         if (step == 1) or (step == 2 and counter == 0):
-            start_index = list_values.index(entry[1])
+            for i in list_entries:
+                if i[0] == entry[0]:
+                    break
+                start_index += 1
         elif step == 2 and counter > 0:
             start_index = len(list_values)
 
@@ -100,37 +103,30 @@ def remove_alphabetical_char(value):
 
 # remove any unexpected characters if they aren't surrounded by a digit on either side (adjacent or otherwise)
 def remove_unexpected_characters(value):
+    try:
+        if (len(value) >= 9) or (value[0] == '.' and isinstance(int(value[1:]), int)) or (value[len(value) - 1] == '.' and isinstance(int(value[:len(value) - 1]), int)):
+            return value
+    except ValueError:
+        pass
     value = list(value)
     digit_present_right = False
     digit_present_left = False
     for i in range(len(value) - 1, -1, -1):
-        if value[i] not in config.unexpected_characters:
-            try:
-                if (not digit_present_right) and isinstance(int(value[i]), int):
-                    digit_present_right = True
-                    continue
-            except ValueError:
-                pass
-            continue
         if not digit_present_right:
-            try:
-                if isinstance(int(value[i]), int):
-                    digit_present_right = True
-            except ValueError:
-                pass
-        for k in value[:i]:
-            try:
-                if isinstance(int(k), int):
-                    digit_present_left = True
-                    break
-            except ValueError:
-                pass
-        no_int_either_side = not (digit_present_left and digit_present_right)
-        no_int_left_side = not digit_present_left and digit_present_right
-        no_int_right_side = digit_present_left and not digit_present_right
-        if no_int_either_side or no_int_left_side or no_int_right_side:
-            value.pop(i)
+            if any(char.isdigit() for char in value[i + 1:]):
+                digit_present_right = True
+
+        digit_present_left = any(char.isdigit() for char in value[:i])
+
+        if value[i] in config.unexpected_characters:
+            if digit_present_left and digit_present_right:
+                digit_present_left = False
+                continue
+            elif (digit_present_left and not digit_present_right) or (not digit_present_left and digit_present_right) or (not digit_present_left and not digit_present_right):
+                value.pop(i)
+
         digit_present_left = False
+
     return ''.join(value)
 
 
@@ -201,6 +197,8 @@ def desired_pressure_format(value):
             return True
     except ValueError:
         return False
+    except TypeError:
+        return False
     return False
 
 
@@ -217,8 +215,11 @@ def pressure_decimal_alternate(value):
 # identifying values that can be disregarded (e.g. 'blank', 'retracted')
 # TODO : determine later on if this needs to be coded as -999.9 ("missing value")
 def disregarded_value(value):
-    if value.lower() in config.disregarded_values:
-        return True
+    try:
+        if value.lower() in config.disregarded_values:
+            return True
+    except AttributeError:
+        return False
     return False
 
 
@@ -249,7 +250,11 @@ def fluctuation_exceeds(value, entry, amount):
     db.cursor.execute(sql_ref)
     entries_same_day = db.cursor.fetchall()
     values_same_day = [item[1] for item in entries_same_day]
-    index = values_same_day.index(value)
+    index = 0
+    for i in entries_same_day:
+        if i[0] == entry[0]:
+            break
+        index += 1
     try:
         if index - 1 < 0:
             return False

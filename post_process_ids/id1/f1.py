@@ -14,6 +14,12 @@ def f1(entry):
     elif methods.disregarded_value(value):
         methods.update_corrected_pressure_table(*return_list)
 
+    elif value is None:
+        methods.update_corrected_pressure_table(*return_list)
+
+    elif value == '':
+        methods.update_corrected_pressure_table(*return_list)
+
     # if not of the right form initially, corrects format and returns entry with corrected value
     else:
         value = methods.remove_spaces(value)
@@ -29,12 +35,15 @@ def f1(entry):
         # TODO : 'Illegible' entries (currently disregarded)
         # TODO : return all values as **floats** so they can be processed as necessary in phase 2
 
-        if len(value) == 5:
+        elif value == '':
+            methods.update_corrected_pressure_table(*return_list)
+
+        elif len(value) == 5:
             if value.isnumeric():
                 return_list[1] = float(value) / 1000
                 methods.update_corrected_pressure_table(*return_list)  # TODO : replace test code (return entry)
 
-            # checking and fixing accordingly if pressure value of form 0.XXX, 2.XXX, or 3.XXX
+            # checking and fixing accordingly if pressure value of form 0.XXX, 2.XXX, 3.XXX, or 9.XXX
             elif methods.float_decimal_index(value) == 1:
                 match int(value[0]):
                     case 2:
@@ -55,6 +64,11 @@ def f1(entry):
                         else:
                             return_list[1] = value
                             methods.update_flagged_pressure_table(*return_list)  # TODO : determine what to do if leading digits not found / FLAG
+                    case 9:
+                        value = list(value)
+                        value.insert(0, '2')
+                        return_list[1] = ''.join(value)
+                        methods.update_corrected_pressure_table(*return_list)
                     case _:
                         return_list[1] = value
                         methods.update_flagged_pressure_table(*return_list)  # TODO : (FLAG)
@@ -103,6 +117,7 @@ def f1(entry):
             if value.isnumeric():
                 value = list(value)
                 value.append('0')
+                value.insert(2, '.')
                 return_list[1] = ''.join(value)
                 methods.update_corrected_pressure_table(*return_list)  # TODO : replace test code (return entry)
             # value of form +XXX or -XXX:
@@ -205,29 +220,31 @@ def f1(entry):
                 else:
                     return_list[1] = value
                     methods.update_flagged_pressure_table(*return_list)  # TODO : determine what to do if leading digits not found / FLAG
-            index = methods.float_decimal_index(value)
-            match index:
-                # value of form .XX:
-                case 0:
-                    leading_digits = methods.reference_previous_values(entry, 'leading_digits')
-                    if leading_digits is not None:
-                        value = list(value)
-                        value.insert(0, leading_digits)
-                        return_list[1] = ''.join(value)
-                        methods.update_corrected_pressure_table(*return_list)  # TODO : replace test code (return entry)
-                    else:
+            elif not value.isnumeric():
+                index = methods.float_decimal_index(value)
+                match index:
+                    # value of form .XX:
+                    case 0:
+                        leading_digits = methods.reference_previous_values(entry, 'leading_digits')
+                        if leading_digits is not None:
+                            value = list(value)
+                            value.insert(0, leading_digits)
+                            return_list[1] = ''.join(value)
+                            methods.update_corrected_pressure_table(*return_list)  # TODO : replace test code (return entry)
+                        else:
+                            return_list[1] = value
+                            methods.update_flagged_pressure_table(*return_list)  # TODO : determine what to do if leading digits not found / FLAG
+                    # value of form X.X:
+                    case 1:
                         return_list[1] = value
-                        methods.update_flagged_pressure_table(*return_list)  # TODO : determine what to do if leading digits not found / FLAG
-                # value of form X.X:
-                case 1:
-                    return_list[1] = value
-                    methods.update_flagged_pressure_table(*return_list)  # TODO : (FLAG)
-                # value of form XX.:
-                case 2:
-                    return_list[1] = value
-                    methods.update_flagged_pressure_table(*return_list)  # TODO : (FLAG)
-            return_list[1] = value
-            methods.update_flagged_pressure_table(*return_list)  # TODO : (FLAG)
+                        methods.update_flagged_pressure_table(*return_list)  # TODO : (FLAG)
+                    # value of form XX.:
+                    case 2:
+                        return_list[1] = value
+                        methods.update_flagged_pressure_table(*return_list)  # TODO : (FLAG)
+            else:
+                return_list[1] = value
+                methods.update_flagged_pressure_table(*return_list)  # TODO : (FLAG)
 
 
         elif len(value) == 2:
@@ -242,7 +259,7 @@ def f1(entry):
                         value.append('.000')
                         return_list[1] = ''.join(value)
                         methods.update_corrected_pressure_table(*return_list)  # TODO : replace test code (return entry)
-                elif (value < 28) or (value >= 33):
+                elif (float(value) < 28) or (float(value) >= 33):
                     if entry[4] == 8:
                         leading_digits = methods.reference_previous_values(entry, 'leading_digits')
                         if leading_digits is not None:
@@ -306,9 +323,11 @@ def f1(entry):
             if ',' in value:
                 index = value.index(',')
                 value = value[:index]
-                entry[1] = value
+                return_list[1] = value
+                for i in range(2):
+                    return_list.append(None)  # TODO : replace / edit => appended two None types to reflect usual entry into f1 function
                 # TODO : flag this step indicating parsing and subsequent removal of any secondary or values following the first entry
-                f1(entry)  # once we've parsed the entry and reduced it to a single observation, put it back through same algorithm again
+                f1(tuple(return_list))  # once we've parsed the entry and reduced it to a single observation, put it back through same algorithm again
             else:
                 return_list[1] = value
                 methods.update_flagged_pressure_table(*return_list)  # TODO : (FLAG)
