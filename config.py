@@ -3,7 +3,7 @@
 import workflow_methods_master as methods
 
 # unexpected characters in a data entry (when not surrounded on either side by digits)
-unexpected_characters = ['?', '.', '*', '&', '#', '^', '$', '(', ')', '[', ']', '{', '}', '"', '/']
+unexpected_characters = ['?', '.', '*', '&', '#', '^', '$', '(', ')', '[', ']', '{', '}', '"', '/', '@']
 
 
 # characters that could potentially have replaced decimal point in a numerical data entry
