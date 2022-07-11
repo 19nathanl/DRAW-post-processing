@@ -1,6 +1,7 @@
 # file where all MySQL commands are kept
 import datetime
 
+
 main_command = "SELECT " \
                   \
                   "pressure_entries.id, " \

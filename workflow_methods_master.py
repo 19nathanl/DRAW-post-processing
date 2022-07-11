@@ -104,7 +104,7 @@ def remove_alphabetical_char(value):
 # remove any unexpected characters if they aren't surrounded by a digit on either side (adjacent or otherwise)
 def remove_unexpected_characters(value):
     try:
-        if (len(value) >= 9) or (value[0] == '.' and isinstance(int(value[1:]), int)) or (value[len(value) - 1] == '.' and isinstance(int(value[:len(value) - 1]), int)):
+        if (len(value) >= 9 and ',' in value) or (value[0] == '.' and isinstance(int(value[1:]), int)) or (value[len(value) - 1] == '.' and isinstance(int(value[:len(value) - 1]), int)):
             return value
     except ValueError:
         pass
