@@ -10,15 +10,18 @@ import database_connection as db
 
 # references previous values in the ledger sheet(s); depending on chosen option, finds and returns previous leading digits (to use),
 # or returns entire value that contains necessary leading digits
+import tables
+
+
 def reference_previous_values(entry, option):  # TODO : determine if 'option' is needed at all
     def modular_code_block(entry, command, step):
         if command == -1:
-            return -1
+            return -1, None
         db.cursor.execute(command)
         list_entries = db.cursor.fetchall()
         list_values = [item[1] for item in list_entries]
         if step == 2 and len(list_values) == 0:
-            return -1
+            return -1, None
 
         start_index = 0
         if (step == 1) or (step == 2 and counter == 0):
@@ -35,46 +38,51 @@ def reference_previous_values(entry, option):  # TODO : determine if 'option' is
                     if (list_values[i][0:2] in config.possible_lead_digits) and (config.possible_pressure_formats(list_values[i])):
                         match option:
                             case 'leading_digits':
-                                return list_values[i][0:2]
+                                ref_info = list_entries[i]
+                                return list_values[i][0:2], [ref_info[0], ref_info[1], ref_info[9]]  # ref. value , information about ref. value
                             case 'whole_value':
-                                return list_values[i]
+                                return list_values[i]  # TODO : determine if this is ever used or can be removed
                 except TypeError:
-                    pass
+                    return None, None
         except ValueError:
-            pass
+            return None, None
 
-    result = modular_code_block(entry, sql.check_1_command(entry), 1)
+    result, info = modular_code_block(entry, sql.check_1_command(entry), 1)
     if result is not None:
         if result == -1:
-            return None
-        return result  # TODO : be able to return information about referenced value for pressure / phase 1 error table (using 'entry' indices)
+            return None, None
+        return result, info
     else:
         counter = 0
         while True:
-            result = modular_code_block(entry, sql.check_2_command(entry, counter), 2)
+            result, info = modular_code_block(entry, sql.check_2_command(entry, counter), 2)
             if result is not None:
                 if result == -1:
-                    return None
-                return result  # TODO : be able to return information about referenced value for pressure / phase 1 error table (using 'entry' indices)
+                    return None, None
+                return result, info
             else:
                 counter += 1
-                if counter > 100:
+                if counter > 20:
                     print('verify if loop is infinite!')
+                    return None, None
 
 
 # remove any spaces present in the data entry
-def remove_spaces(value):
+def remove_spaces(value, entry):
     if ' ' in value:
+        original_value = value
         value = list(value)
         while ' ' in value:
             value.remove(' ')
         value = ''.join(value)
+        tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
     return value
 
 
 # remove double decimals '..' in the data entry if instance is surrounded by a digit on both sides
-def correct_double_decimals(value):
+def correct_double_decimals(value, entry):
     while '..' in value:
+        original_value = value
         index = value.index('..')
         if (index - 1) < 0:
             return value
@@ -83,6 +91,7 @@ def correct_double_decimals(value):
                 value = list(value)
                 value.pop(index)
                 value = ''.join(value)
+                tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
         except ValueError:
             return value
         except IndexError:
@@ -91,23 +100,27 @@ def correct_double_decimals(value):
 
 
 # remove any alphabetical character in the data entry
-def remove_alphabetical_char(value):
-    value = list(value)
-    for i in value:
-        if i.isalpha():
-            while i in value:
-                value.remove(i)
-    value = ''.join(value)
+def remove_alphabetical_char(value, entry):
+    if any(char.isalpha() for char in value):
+        original_value = value
+        value = list(value)
+        for i in value:
+            if i.isalpha():
+                while i in value:
+                    value.remove(i)
+        value = ''.join(value)
+        tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
     return value
 
 
 # remove any unexpected characters if they aren't surrounded by a digit on either side (adjacent or otherwise)
-def remove_unexpected_characters(value):
+def remove_unexpected_characters(value, entry):
     try:
         if (len(value) >= 9 and ',' in value) or (value[0] == '.' and isinstance(int(value[1:]), int)) or (value[len(value) - 1] == '.' and isinstance(int(value[:len(value) - 1]), int)):
             return value
     except ValueError:
         pass
+    original_value = value
     value = list(value)
     digit_present_right = False
     digit_present_left = False
@@ -127,14 +140,20 @@ def remove_unexpected_characters(value):
 
         digit_present_left = False
 
-    return ''.join(value)
+    value = ''.join(value)
+    if value != original_value:
+        tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+    return value
 
 
 # replacing any character in the string (index) with a decimal point
-def replace_with_decimal(value, index):
+def replace_with_decimal(value, index, entry):
+    original_value = value
     value = list(value)
     value[index] = '.'
-    return ''.join(value)
+    value = ''.join(value)
+    tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+    return value
 
 
 # removes a set amount of trailing digits from a number (specified by 'number' parameter)
@@ -143,39 +162,32 @@ def remove_trailing_digits(value, number):
 
 
 # removes character(s) at given indices; adaptable to single index input, or a list of indices ('indices' parameter)
-def remove_elements_at_indices(value, indices):
+def remove_elements_at_indices(value, indices, entry):
+    original_value = value
     value = list(value)
     if type(indices) == int:
         value.pop(indices)
+        value = ''.join(value)
+        tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+        return value
     elif type(indices) == list:
         for i in range(len(indices)):
             j = max(indices)
             value.pop(j)
             indices.remove(j)
+        value = ''.join(value)
+        tables.add_error_edit_code('000', original_value, value, entry)
         return ''.join(value)
 
 
 # inserts element (string character) at given index and returns new string
-def insert_element_at_index(value, index, element):
+def insert_element_at_index(value, index, element, entry):
+    original_value = value
     value = list(value)
     value.insert(index, element)
-    return ''.join(value)
-
-
-def update_corrected_pressure_table(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date):
-    sql_command = "INSERT INTO pressure_entries_corrected " \
-                  "(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date) " \
-                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-    db.cursor.execute(sql_command, (id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date))
-    db.db.commit()
-
-
-def update_flagged_pressure_table(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date):
-    sql_command = "INSERT INTO pressure_entries_flagged " \
-                  "(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date) " \
-                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-    db.cursor.execute(sql_command, (id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date))
-    db.db.commit()
+    value = ''.join(value)
+    tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+    return value
 
 
 ##################### CONDITIONAL STATEMENT CHECKS BELOW #####################

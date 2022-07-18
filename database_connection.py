@@ -13,9 +13,17 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 
-# accessing all data entries in database, with all necessary information (columns)
-def db_data():
-    sql_command = sql_commands.main_command
+# returning raw data entries from database, with all necessary information (columns)
+def raw_data():
+    sql_command = sql_commands.test_raw_data_sql
+    cursor.execute(sql_command)
+    result = cursor.fetchall()
+    return result
+
+
+# returning phase 1-corrected data entries from database, with all necessary information (columns)
+def phase_1_corrected_data():
+    sql_command = sql_commands.phase_1_corrected_data_sql
     cursor.execute(sql_command)
     result = cursor.fetchall()
     return result
