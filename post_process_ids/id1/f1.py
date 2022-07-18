@@ -84,7 +84,7 @@ def f1(entry):
             elif methods.float_decimal_index(value) == 2:
                 if entry[4] == 8:
                     tables.update_corrected_table_phase1(*return_list, 0)  # TODO : replace test code (return entry)
-                elif methods.fluctuation_exceeds(value, entry, 0.100):  # check to see if fluctuated by more than 0.100 inHg
+                elif methods.fluctuation_exceeds(value, return_list, 0.100):  # check to see if fluctuated by more than 0.100 inHg
                     tables.update_corrected_table_phase1(*return_list, 1)  # TODO : (FLAG)
                 else:
                     original_value = value
@@ -136,7 +136,9 @@ def f1(entry):
                 tables.update_corrected_table_phase1(*return_list, 0)  # TODO : replace test code (return entry)
             # value of form +XXX or -XXX:
             elif methods.removable_plus_minus(value):
-                pass  # TODO : Remove value / discard
+                original_value = value
+                return_list[1] = ''
+                tables.add_error_edit_code('000', original_value, return_list[1], return_list)  # update error table with fix TODO : replace '000'
                 tables.update_corrected_table_phase1(*return_list, 1)  # TODO : (FLAG)
             # value of form .XXX:
             elif methods.float_decimal_index(value) == 0:
@@ -156,9 +158,11 @@ def f1(entry):
             # value of form XX.X:
             elif methods.float_decimal_index(value) == 2:
                 if value[:2] in ['29', '30']:
+                    original_value = value
                     value = list(value)
                     value.append('00')
                     return_list[1] = ''.join(value)
+                    tables.add_error_edit_code('000', original_value, return_list[1], return_list)
                     tables.update_corrected_table_phase1(*return_list, 0)  # TODO : replace test code (return entry)
                 else:
                     return_list[1] = methods.remove_elements_at_indices(value, 2, return_list)
@@ -168,7 +172,7 @@ def f1(entry):
                         value = list(return_list[1])
                         value.insert(0, leading_digits)
                         value.insert(1, '.')
-                        value = ''.join(value)
+                        value, return_list[1] = ''.join(value), ''.join(value)
                         tables.add_error_edit_code('000', original_value, value, return_list,
                                                    'Ref. entry ID: {}, '
                                                    'Value: {}, '
@@ -176,7 +180,6 @@ def f1(entry):
                         if methods.fluctuation_exceeds(value, entry, 0.100):
                             tables.update_corrected_table_phase1(*return_list, 1)  # TODO : (FLAG)
                         else:
-                            return_list[1] = value
                             tables.update_corrected_table_phase1(*return_list, 0)  # TODO : replace test code (return entry)
                     else:
                         tables.add_error_edit_code('000', value, '', return_list)  # update error table with fix TODO : replace '000'
@@ -224,7 +227,7 @@ def f1(entry):
                             value.remove('.')
                             value.insert(0, '.')
                             value.insert(0, leading_digits)
-                            value = ''.join(value)
+                            value, return_list[1] = ''.join(value), ''.join(value)
                             tables.add_error_edit_code('000', original_value, value, return_list,
                                                        'Ref. entry ID: {}, '
                                                        'Value: {}, '
@@ -232,7 +235,6 @@ def f1(entry):
                             if methods.fluctuation_exceeds(value, entry, 0.100):
                                 tables.update_corrected_table_phase1(*return_list, 1)  # TODO : (FLAG)
                             else:
-                                return_list[1] = value
                                 tables.update_corrected_table_phase1(*return_list, 0)  # TODO : replace test code (return entry)
                         else:
                             tables.add_error_edit_code('000', value, '', return_list)  # update error table with fix TODO : replace '000'
@@ -298,9 +300,11 @@ def f1(entry):
                     if methods.fluctuation_exceeds(value, entry, 0.150):
                         tables.update_corrected_table_phase1(*return_list, 1)  # TODO : (FLAG)
                     else:
+                        original_value = value
                         value = list(value)
                         value.append('.000')
-                        return_list[1] = ''.join(value)
+                        return_list[1] = ''.join(value)  # TODO : add to phase 1 errors*********************]
+                        tables.add_error_edit_code('000', original_value, return_list[1], return_list)
                         tables.update_corrected_table_phase1(*return_list, 0)  # TODO : replace test code (return entry)
                 elif (float(value) < 28) or (float(value) >= 33):
                     if entry[4] == 8:
@@ -321,6 +325,7 @@ def f1(entry):
                             tables.update_corrected_table_phase1(*return_list, 1)  # TODO : determine what to do if leading digits not found / FLAG
                     elif entry[4] in [67, 69]:
                         return_list[4], return_list[5] = 68, 'City Hall Attached Thermometer'
+                        tables.add_error_edit_code('000', value, '', return_list, 'Previous field_id: {}'.format(entry[4]))
                         tables.update_corrected_table_phase1(*return_list, 0)  # TODO : replace test code (return entry)
                     else:
                         tables.add_error_edit_code('000', value, '', return_list)  # update error table with fix TODO : replace '000'
@@ -364,7 +369,7 @@ def f1(entry):
         elif len(value) == 8:
             # value of form XX.XXXXX:
             if methods.float_decimal_index(value) == 2:
-                return_list[1] = methods.remove_trailing_digits(value, 2)
+                return_list[1] = methods.remove_trailing_digits(value, 2, return_list)
                 tables.update_corrected_table_phase1(*return_list, 0)  # TODO : replace test code (return entry)
             else:
                 tables.add_error_edit_code('000', value, '', return_list)  # update error table with fix TODO : replace '000'
@@ -374,10 +379,11 @@ def f1(entry):
         elif len(value) >= 9:
             # single data entry comprises 2+ entries, entered in the same cell by transcriber
             if ',' in value:
+                original_value = value
                 index = value.index(',')
                 value = value[:index]
                 return_list[1] = value
-                # TODO : flag this step indicating parsing and subsequent removal of any secondary or values following the first entry
+                tables.add_error_edit_code('000', original_value, return_list[1], return_list)  # update error table with fix TODO : replace '000'
                 f1(tuple(return_list))  # once we've parsed the entry and reduced it to a single observation, put it back through same algorithm again
             else:
                 tables.add_error_edit_code('000', value, '', return_list)  # update error table with fix TODO : replace '000'

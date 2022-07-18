@@ -157,8 +157,11 @@ def replace_with_decimal(value, index, entry):
 
 
 # removes a set amount of trailing digits from a number (specified by 'number' parameter)
-def remove_trailing_digits(value, number):
-    return value[:len(value) - number]
+def remove_trailing_digits(value, number, entry):
+    original_value = value
+    value = value[:len(value) - number]
+    tables.add_error_edit_code('000', original_value, value, entry)
+    return value
 
 
 # removes character(s) at given indices; adaptable to single index input, or a list of indices ('indices' parameter)
@@ -271,6 +274,11 @@ def fluctuation_exceeds(value, entry, amount):
         if index - 1 < 0:
             return False
         if abs(float(values_same_day[index]) - float(values_same_day[index - 1])) > amount:
+            ref_value = entries_same_day[index - 1]
+            ref_info = [ref_value[0], ref_value[1], ref_value[2]]
+            tables.add_error_edit_code('000', value, '', entry, 'Ref. entry ID: {}, '
+                                                                'Value: {}, '
+                                                                'Datetime of reference: {}'.format(*ref_info))  # update error table with fix TODO : replace '000'
             return True
     except TypeError:
         return False
