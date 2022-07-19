@@ -44,6 +44,7 @@ def reference_previous_values(entry, option):  # TODO : determine if 'option' is
                                 return list_values[i]  # TODO : determine if this is ever used or can be removed
                 except TypeError:
                     return None, None
+            return None, None
         except ValueError:
             return None, None
 
@@ -62,7 +63,7 @@ def reference_previous_values(entry, option):  # TODO : determine if 'option' is
                 return result, info
             else:
                 counter += 1
-                if counter > 20:
+                if counter > 25:
                     print('verify if loop is infinite!')
                     return None, None
 
@@ -75,7 +76,7 @@ def remove_spaces(value, entry):
         while ' ' in value:
             value.remove(' ')
         value = ''.join(value)
-        tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+        tables.add_error_edit_code('101', original_value, value, entry)
     return value
 
 
@@ -91,7 +92,7 @@ def correct_double_decimals(value, entry):
                 value = list(value)
                 value.pop(index)
                 value = ''.join(value)
-                tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+                tables.add_error_edit_code('102', original_value, value, entry)
         except ValueError:
             return value
         except IndexError:
@@ -109,7 +110,7 @@ def remove_alphabetical_char(value, entry):
                 while i in value:
                     value.remove(i)
         value = ''.join(value)
-        tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+        tables.add_error_edit_code('103', original_value, value, entry)
     return value
 
 
@@ -142,7 +143,7 @@ def remove_unexpected_characters(value, entry):
 
     value = ''.join(value)
     if value != original_value:
-        tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+        tables.add_error_edit_code('104', original_value, value, entry)
     return value
 
 
@@ -152,7 +153,7 @@ def replace_with_decimal(value, index, entry):
     value = list(value)
     value[index] = '.'
     value = ''.join(value)
-    tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+    tables.add_error_edit_code('108', original_value, value, entry)
     return value
 
 
@@ -160,7 +161,7 @@ def replace_with_decimal(value, index, entry):
 def remove_trailing_digits(value, number, entry):
     original_value = value
     value = value[:len(value) - number]
-    tables.add_error_edit_code('000', original_value, value, entry)
+    tables.add_error_edit_code('114', original_value, value, entry)
     return value
 
 
@@ -171,7 +172,7 @@ def remove_elements_at_indices(value, indices, entry):
     if type(indices) == int:
         value.pop(indices)
         value = ''.join(value)
-        tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+        tables.add_error_edit_code('109', original_value, value, entry)
         return value
     elif type(indices) == list:
         for i in range(len(indices)):
@@ -179,7 +180,7 @@ def remove_elements_at_indices(value, indices, entry):
             value.pop(j)
             indices.remove(j)
         value = ''.join(value)
-        tables.add_error_edit_code('000', original_value, value, entry)
+        tables.add_error_edit_code('109', original_value, value, entry)
         return ''.join(value)
 
 
@@ -189,7 +190,7 @@ def insert_element_at_index(value, index, element, entry):
     value = list(value)
     value.insert(index, element)
     value = ''.join(value)
-    tables.add_error_edit_code('000', original_value, value, entry)  # update error table with fix TODO : replace '000'
+    tables.add_error_edit_code('106', original_value, value, entry)
     return value
 
 
@@ -276,9 +277,9 @@ def fluctuation_exceeds(value, entry, amount):
         if abs(float(values_same_day[index]) - float(values_same_day[index - 1])) > amount:
             ref_value = entries_same_day[index - 1]
             ref_info = [ref_value[0], ref_value[1], ref_value[2]]
-            tables.add_error_edit_code('000', value, '', entry, 'Ref. entry ID: {}, '
+            tables.add_error_edit_code('020', value, '', entry, 'Ref. entry ID: {}, '
                                                                 'Value: {}, '
-                                                                'Datetime of reference: {}'.format(*ref_info))  # update error table with fix TODO : replace '000'
+                                                                'Datetime of reference: {}'.format(*ref_info))
             return True
     except TypeError:
         return False

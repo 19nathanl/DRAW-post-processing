@@ -11,7 +11,7 @@ def update_corrected_table_phase1(id, value, user_id, page_id, field_id, field_k
 
 
 # update "pressure_entries_phase1_errors" table with flag or edit made to particular value
-def add_error_edit_code(error_code, original_value, corrected_value, entry_info, add_info=None):
+def add_error_edit_code(error_code, original_value, corrected_value, entry_info, add_info=''):
     id = entry_info[0]
     user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date = entry_info[2:]
     sql_command = "INSERT INTO pressure_entries_phase1_errors " \
