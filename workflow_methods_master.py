@@ -1,5 +1,4 @@
 # File in which all methods that are called upon in workflow are stored, for repurposability and modularity of code
-# TODO : add error tags/codes to the value at each return statement if/when values are altered in any way
 
 import config
 import sql_commands as sql
@@ -229,7 +228,6 @@ def pressure_decimal_alternate(value):
 
 
 # identifying values that can be disregarded (e.g. 'blank', 'retracted')
-# TODO : determine later on if this needs to be coded as -999.9 ("missing value")
 def disregarded_value(value):
     try:
         if value.lower() in config.disregarded_values:
