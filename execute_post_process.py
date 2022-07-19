@@ -29,17 +29,14 @@ def filter_id(post_process_id, entry, phase):
                     pass
 
 
-updates_list = []
-
 start = time.time()
 counter = 0
 for row in entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 1)
+
     counter += 1
     print(counter)
-    if counter == 25000:
-        break
 print(time.time() - start)
 
 # phase_1_corrected_entries = db.phase_1_corrected_data()

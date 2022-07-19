@@ -15,7 +15,7 @@ cursor = db.cursor()
 
 # returning raw data entries from database, with all necessary information (columns)
 def raw_data():
-    sql_command = sql_commands.test_raw_data_sql
+    sql_command = sql_commands.raw_data_sql
     cursor.execute(sql_command)
     result = cursor.fetchall()
     return result

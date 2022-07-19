@@ -1,25 +1,6 @@
 # file where all MySQL commands are kept
 import datetime
 
-test_raw_data_sql = "SELECT " \
-                  \
-                  "pressure_entries.id, " \
-                  "pressure_entries.value, " \
-                  "pressure_entries.user_id, " \
-                  "pressure_entries.page_id, " \
-                  "pressure_entries.field_id, " \
-                  "fields.field_key, " \
-                  "pressure_entries.annotation_id, " \
-                  "annotations.transcription_id, " \
-                  "fields.post_process_id, " \
-                  "annotations.observation_date " \
-                  \
-                  "FROM pressure_entries " \
-                  "LEFT JOIN fields " \
-                  "ON fields.id = pressure_entries.field_id " \
-                  "LEFT JOIN annotations " \
-                  "ON pressure_entries.annotation_id = annotations.id " \
-                  "WHERE value LIKE '___';"
 
 raw_data_sql = "SELECT " \
                   \
