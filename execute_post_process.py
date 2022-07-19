@@ -39,6 +39,7 @@ for row in entries:
     print(counter)
 print(time.time() - start)
 
+
 # phase_1_corrected_entries = db.phase_1_corrected_data()
 #
 # for row in entries:
