@@ -7,9 +7,6 @@ import post_process_ids.id1.f1 as f1
 import post_process_ids.id1.r1 as r1
 
 
-entries = db.raw_data()
-
-
 # point data entry to particular post_processing algorithm for phase 1 depending on its post_process_id
 def filter_id(post_process_id, entry, phase):
     match phase:
@@ -29,9 +26,11 @@ def filter_id(post_process_id, entry, phase):
                     pass
 
 
+raw_entries = db.raw_data()
+
 start = time.time()
 counter = 0
-for row in entries:
+for row in raw_entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 1)
 
@@ -40,8 +39,17 @@ for row in entries:
 print(time.time() - start)
 
 
-# phase_1_corrected_entries = db.phase_1_corrected_data()
-#
-# for row in entries:
-#     post_process_id = row[8]
-#     filter_id(post_process_id, row, 2)
+
+
+# phase 1 (flagged) entries:
+phase_1_entries = db.phase_1_data()
+
+counter = 0
+start = time.time()
+for row in phase_1_entries:
+    post_process_id = row[8]
+    filter_id(post_process_id, row, 2)
+    counter += 1
+    print(counter)
+
+print(time.time() - start)

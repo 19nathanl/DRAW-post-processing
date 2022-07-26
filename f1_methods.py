@@ -1,17 +1,15 @@
-# File in which all methods that are called upon in workflow are stored, for repurposability and modularity of code
+# File in which all methods that are called upon in pressure format workflow are stored, for repurposability and modularity of code
 
 import config
 import sql_commands as sql
 import database_connection as db
+import tables
 
 
 ##################### DIRECT EDITING / FIXING METHODS #####################
 
 # references previous values in the ledger sheet(s); depending on chosen option, finds and returns previous leading digits (to use),
 # or returns entire value that contains necessary leading digits
-import tables
-
-
 def reference_previous_values(entry, option):  # TODO : determine if 'option' is needed at all
     def modular_code_block(entry, command, step):
         if command == -1:
@@ -34,7 +32,7 @@ def reference_previous_values(entry, option):  # TODO : determine if 'option' is
         try:
             for i in range(start_index - 1, -1, -1):
                 try:
-                    if (list_values[i][0:2] in config.possible_lead_digits) and (config.possible_pressure_formats(list_values[i])):
+                    if (list_values[i][0:2] in config.possible_lead_digits_pressure) and (config.possible_pressure_formats(list_values[i])):
                         match option:
                             case 'leading_digits':
                                 ref_info = list_entries[i]
@@ -194,15 +192,6 @@ def insert_element_at_index(value, index, element, entry):
 
 
 ##################### CONDITIONAL STATEMENT CHECKS BELOW #####################
-
-# local sanity check for pressure value  TODO : eventually replace this with universal method for local check, and match-case with field_id
-def pressure_range(value):
-    try:
-        if (float(value) < config.pressure_min) or (float(value) > config.pressure_max):
-            pass  # TODO : flag
-    except ValueError:
-        print("Format-checked value couldn't be treated as a number: " + str(value))
-
 
 # Checking to see if raw pressure value is of form XX.XXX
 def desired_pressure_format(value):
