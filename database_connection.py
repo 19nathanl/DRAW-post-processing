@@ -21,9 +21,9 @@ def raw_data():
     return result
 
 
-# returning phase 1-corrected data entries from database, with all necessary information (columns)
-def phase_1_corrected_data():
-    sql_command = sql_commands.phase_1_corrected_data_sql
+# returning phase 1-corrected, flagged data entries from database
+def phase_1_data():
+    sql_command = sql_commands.phase_1_data_sql
     cursor.execute(sql_command)
     result = cursor.fetchall()
     return result

@@ -1,8 +1,8 @@
 # File for configuring variables/attributes that are addressed in the workflow
 
-import workflow_methods_master as methods
+import f1_methods as methods
 
-# unexpected characters in a data entry (when not surrounded on either side by digits)
+# unexpected characters in a data entry (when not surrounded on either side by digits)  TODO : determine if any alterations necessary for non-pressure values
 unexpected_characters = ['?', '.', '*', '&', '#', '^', '$', '(', ')', '[', ']', '{', '}', '"', '/', '@', "\\"]
 
 
@@ -15,7 +15,7 @@ disregarded_values = ['empty', 'blank', 'retracted', 'empty / blank', 'vide', 'n
 
 
 # possible leading digits for a pressure value:
-possible_lead_digits = ['28', '29', '30', '31']
+possible_lead_digits_pressure = ['28', '29', '30', '31']
 
 
 # possible correct formats that a value can be in, for the case where we want to retrieve leading digits from it:
@@ -28,6 +28,6 @@ def possible_pressure_formats(value):
         return True
 
 
-# pressure config values
-pressure_min = 28.000
-pressure_max = 31.500
+# Maximum ranges of value types
+pressure_min = 28.032  # 3 std.'s
+pressure_max = 31.698  # 3 std.'s
