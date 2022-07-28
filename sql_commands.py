@@ -48,9 +48,9 @@ def equation_retrieve_row(entry, equation_num):
     field_ids = None
     match equation_num:
         case 1:
-            field_ids = (7, 8, 9)
+            field_ids = (4, 5, 6)  # to find field_id = 7
         case 2:
-            field_ids = (5, 6, 7)
+            field_ids = (4, 5, 6, 9, 10)  # to find field_id = 8
     user_id = entry[2]
     observation_date = str(entry[9])
     return "SELECT * FROM data_entries_corrected " \
