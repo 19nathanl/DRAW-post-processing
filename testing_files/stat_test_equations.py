@@ -11,11 +11,11 @@ cursor = db.cursor()
 
 
 # pulls all id's of values that had leading digits artificially added to them in phase 1
-cursor.execute("SELECT id FROM pressure_entries_phase1_errors WHERE error_code = 110 AND field_id IN (7,8);")
+cursor.execute("SELECT id FROM pressure_entries_phase1_errors WHERE error_code IN (110,115) AND field_id IN (7,8);")
 excluded_ids = [item[0] for item in cursor.fetchall()]
 
 # pulls all entries of values that didn't have leading digits added to them in phase 1, but are cleaned up appropriately
-cursor.execute("SELECT * FROM pressure_entries_corrected WHERE field_id IN (7,8) AND id NOT IN {} AND flagged = 0;".format(tuple(excluded_ids)))
+cursor.execute("SELECT * FROM pressure_entries_corrected WHERE field_id IN (7,8) AND id IN {} AND flagged = 0;".format(tuple(excluded_ids)))
 corr_vals_excl_lead_dig = cursor.fetchall()
 
 field_ids_7 = []
@@ -81,8 +81,6 @@ def generated_stats_field_id_8():
     ### finding mean and standard deviation of field_id's 8 (between transcribed and equation values)
     for entry in field_ids_8:
         value = entry[1]
-        if counter == 4091:
-            print("stop here")
         if value is not None:
             if config.possible_pressure_formats(value):
                 equation_value = r1_methods.equation_resultant_value(entry)
@@ -101,23 +99,22 @@ def generated_stats_field_id_8():
     print("Standard deviation: " + str(stats.stdev(mean_diff_id_8)))
     arr = np.array(mean_diff_id_8)
 
-    print(stat_boundary(0.0001, mean_diff_id_8, arr))
-    print(stat_boundary(0.001, mean_diff_id_8, arr))
     print(stat_boundary(0.01, mean_diff_id_8, arr))
     print(stat_boundary(0.05, mean_diff_id_8, arr))
     print(stat_boundary(0.1, mean_diff_id_8, arr))
     print(stat_boundary(0.12, mean_diff_id_8, arr))
     print(stat_boundary(0.2, mean_diff_id_8, arr))
     print(stat_boundary(0.5, mean_diff_id_8, arr))
+    print(stat_boundary(0.75, mean_diff_id_8, arr))
+    print(stat_boundary(0.875, mean_diff_id_8, arr))
     print(stat_boundary(1, mean_diff_id_8, arr))
-    print(stat_boundary(10, mean_diff_id_8, arr))
-    print(stat_boundary(20, mean_diff_id_8, arr))
-    print(stat_boundary(30, mean_diff_id_8, arr))
-    print(stat_boundary(50, mean_diff_id_8, arr))
-    print(stat_boundary(70, mean_diff_id_8, arr))
-
-    plt.hist(mean_diff_id_8, bins=[-20, -10, -5, -1, -0.1, -0.01, -0.001, -0.0001, 0.0001, 0.001, 0.01, 0.1, 1, 5, 10, 20])
-    plt.show()
+    print(stat_boundary(1.05, mean_diff_id_8, arr))
+    print(stat_boundary(1.1, mean_diff_id_8, arr))
+    print(stat_boundary(1.125, mean_diff_id_8, arr))
+    print(stat_boundary(1.15, mean_diff_id_8, arr))
+    print(stat_boundary(1.2, mean_diff_id_8, arr))
+    print(stat_boundary(1.25, mean_diff_id_8, arr))
+    print(stat_boundary(1.5, mean_diff_id_8, arr))
 
 
 generated_stats_field_id_8()

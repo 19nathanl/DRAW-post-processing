@@ -69,8 +69,12 @@ def f1(entry):
                                                                                                            'Datetime of reference: {}'.format(*ref_info))
                             tables.update_corrected_table(*return_list, 0)
                         else:
-                            tables.add_error_edit_code('010', value, '', return_list)
-                            tables.update_corrected_table(*return_list, 1)
+                            original_value = value
+                            value = list(value)
+                            value[0] = '29'
+                            return_list[1] = ''.join(value)
+                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.update_corrected_table(*return_list, 0)
                     case 9:
                         original_value = value
                         value = list(value)
@@ -85,8 +89,6 @@ def f1(entry):
             elif methods.float_decimal_index(value) == 2:
                 if entry[4] == 8:
                     tables.update_corrected_table(*return_list, 0)
-                elif methods.fluctuation_exceeds(value, return_list, 0.100):  # check to see if fluctuated by more than 0.100 inHg
-                    tables.update_corrected_table(*return_list, 1)
                 else:
                     original_value = value
                     value = list(value)
@@ -154,8 +156,12 @@ def f1(entry):
                                                                                                    'Datetime of reference: {}'.format(*ref_info))
                     tables.update_corrected_table(*return_list, 0)
                 else:
-                    tables.add_error_edit_code('010', value, '', return_list)
-                    tables.update_corrected_table(*return_list, 1)
+                    original_value = value
+                    value = list(value)
+                    value.insert(0, '29')
+                    return_list[1] = ''.join(value)
+                    tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                    tables.update_corrected_table(*return_list, 0)
             # value of form XX.X:
             elif methods.float_decimal_index(value) == 2:
                 if value[:2] in ['29', '30']:
@@ -166,7 +172,7 @@ def f1(entry):
                     tables.add_error_edit_code('107', original_value, return_list[1], return_list)
                     tables.update_corrected_table(*return_list, 0)
                 else:
-                    return_list[1] = methods.remove_elements_at_indices(value, 2, return_list)
+                    return_list[1] = methods.remove_elements_at_indices(value, 2, return_list)  # convert to form XXX
                     leading_digits, ref_info = methods.reference_previous_values(tuple(return_list), 'leading_digits')
                     if leading_digits is not None:
                         original_value = return_list[1]
@@ -178,13 +184,14 @@ def f1(entry):
                                                    'Ref. entry ID: {}, '
                                                    'Value: {}, '
                                                    'Datetime of reference: {}'.format(*ref_info))
-                        if methods.fluctuation_exceeds(value, entry, 0.100):
-                            tables.update_corrected_table(*return_list, 1)
-                        else:
-                            tables.update_corrected_table(*return_list, 0)
+                        tables.update_corrected_table(*return_list, 0)
                     else:
-                        tables.add_error_edit_code('010', value, '', return_list)
-                        tables.update_corrected_table(*return_list, 1)
+                        original_value = return_list[1]
+                        value = list(return_list[1])
+                        value.insert(0, '29.')
+                        return_list[1] = ''.join(value)
+                        tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                        tables.update_corrected_table(*return_list, 0)
             # value of form X.XX:
             elif methods.float_decimal_index(value) == 1:
                 if value[0] != '0':
@@ -202,9 +209,13 @@ def f1(entry):
                                                    'Datetime of reference: {}'.format(*ref_info))
                         tables.update_corrected_table(*return_list, 0)
                     else:
-                        tables.add_error_edit_code('010', value, '', return_list)
-                        tables.update_corrected_table(*return_list, 1)
-                else:
+                        original_value = return_list[1]
+                        value = list(return_list[1])
+                        value.insert(0, '29.')
+                        return_list[1] = ''.join(value)
+                        tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                        tables.update_corrected_table(*return_list, 0)
+                else:  # if value is of form '0.XX':
                     if entry[4] == 8:
                         leading_digits, ref_info = methods.reference_previous_values(tuple(return_list), 'leading_digits')
                         if leading_digits is not None:
@@ -218,8 +229,12 @@ def f1(entry):
                                                        'Datetime of reference: {}'.format(*ref_info))
                             tables.update_corrected_table(*return_list, 0)
                         else:
-                            tables.add_error_edit_code('010', value, '', return_list)
-                            tables.update_corrected_table(*return_list, 1)
+                            original_value = value
+                            value = list(value)
+                            value[0] = '29.'
+                            return_list[1] = ''.join(value)
+                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.update_corrected_table(*return_list, 0)
                     else:
                         leading_digits, ref_info = methods.reference_previous_values(tuple(return_list), 'leading_digits')
                         if leading_digits is not None:
@@ -233,13 +248,15 @@ def f1(entry):
                                                        'Ref. entry ID: {}, '
                                                        'Value: {}, '
                                                        'Datetime of reference: {}'.format(*ref_info))
-                            if methods.fluctuation_exceeds(value, entry, 0.100):
-                                tables.update_corrected_table(*return_list, 1)
-                            else:
-                                tables.update_corrected_table(*return_list, 0)
+                            tables.update_corrected_table(*return_list, 0)
                         else:
-                            tables.add_error_edit_code('010', value, '', return_list)
-                            tables.update_corrected_table(*return_list, 1)
+                            original_value = value
+                            value = list(value)
+                            value.remove('.')
+                            value.insert(0, '29.')
+                            return_list[1] = ''.join(value)
+                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.update_corrected_table(*return_list, 0)
             else:
                 tables.add_error_edit_code('000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
@@ -260,8 +277,12 @@ def f1(entry):
                                                                                                    'Datetime of reference: {}'.format(*ref_info))
                     tables.update_corrected_table(*return_list, 0)
                 else:
-                    tables.add_error_edit_code('010', value, '', return_list)
-                    tables.update_corrected_table(*return_list, 1)
+                    original_value = value
+                    value = list(value)
+                    value.insert(0, '29.')
+                    return_list[1] = ''.join(value)
+                    tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                    tables.update_corrected_table(*return_list, 0)
             elif not value.isnumeric():
                 index = methods.float_decimal_index(value)
                 match index:
@@ -279,8 +300,12 @@ def f1(entry):
                                                        'Datetime of reference: {}'.format(*ref_info))
                             tables.update_corrected_table(*return_list, 0)
                         else:
-                            tables.add_error_edit_code('010', value, '', return_list)
-                            tables.update_corrected_table(*return_list, 1)
+                            original_value = value
+                            value = list(value)
+                            value.insert(0, '29')
+                            return_list[1] = ''.join(value)
+                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.update_corrected_table(*return_list, 0)
                     # value of form X.X:
                     case 1:
                         tables.add_error_edit_code('000', value, '', return_list)
@@ -298,15 +323,12 @@ def f1(entry):
             # value of form XX:
             if value.isnumeric():
                 if value in ('29', '30'):
-                    if methods.fluctuation_exceeds(value, entry, 0.150):
-                        tables.update_corrected_table(*return_list, 1)
-                    else:
-                        original_value = value
-                        value = list(value)
-                        value.append('.000')
-                        return_list[1] = ''.join(value)
-                        tables.add_error_edit_code('107', original_value, return_list[1], return_list)
-                        tables.update_corrected_table(*return_list, 0)
+                    original_value = value
+                    value = list(value)
+                    value.append('.000')
+                    return_list[1] = ''.join(value)
+                    tables.add_error_edit_code('107', original_value, return_list[1], return_list)
+                    tables.update_corrected_table(*return_list, 0)
                 elif (float(value) < 28) or (float(value) >= 33):
                     if entry[4] == 8:
                         leading_digits, ref_info = methods.reference_previous_values(tuple(return_list), 'leading_digits')
@@ -322,8 +344,12 @@ def f1(entry):
                                                        'Datetime of reference: {}'.format(*ref_info))
                             tables.update_corrected_table(*return_list, 0)
                         else:
-                            tables.add_error_edit_code('010', value, '', return_list)
-                            tables.update_corrected_table(*return_list, 1)
+                            original_value = value
+                            value = list(value)
+                            value.insert(0, '29.')
+                            return_list[1] = ''.join(value)
+                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.update_corrected_table(*return_list, 0)
                     elif entry[4] in [67, 69]:
                         return_list[4], return_list[5] = 68, 'City Hall Attached Thermometer'
                         tables.add_error_edit_code('111', value, '', return_list, 'Previous field_id: {}'.format(entry[4]))
@@ -348,8 +374,15 @@ def f1(entry):
                     tables.add_error_edit_code('107', original_value, return_list[1], return_list)
                     tables.update_corrected_table(*return_list, 0)
                 else:
-                    tables.add_error_edit_code('010', value, '', return_list)
-                    tables.update_corrected_table(*return_list, 1)
+                    original_value = value
+                    value = list(value)
+                    value.insert(0, '29')
+                    tables.add_error_edit_code('115', original_value, ''.join(value), return_list)
+                    original_value = ''.join(value)
+                    value.append('00')
+                    return_list[1] = ''.join(value)
+                    tables.add_error_edit_code('107', original_value, return_list[1], return_list)
+                    tables.update_corrected_table(*return_list, 0)
             else:
                 tables.add_error_edit_code('000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
