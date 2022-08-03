@@ -10,7 +10,7 @@ import tables
 
 # references previous values in the ledger sheet(s); depending on chosen option, finds and returns previous leading digits (to use),
 # or returns entire value that contains necessary leading digits
-def reference_previous_values(entry, option):  # TODO : determine if 'option' is needed at all
+def reference_previous_values(entry, option):
     def modular_code_block(entry, command, step):
         if command == -1:
             return -1, None
@@ -38,7 +38,7 @@ def reference_previous_values(entry, option):  # TODO : determine if 'option' is
                                 ref_info = list_entries[i]
                                 return list_values[i][0:2], [ref_info[0], ref_info[1], ref_info[9]]  # ref. value , information about ref. value
                             case 'whole_value':
-                                return list_values[i]  # TODO : determine if this is ever used or can be removed
+                                return list_values[i]
                 except TypeError:
                     return None, None
             return None, None
@@ -248,6 +248,7 @@ def removable_plus_minus(value):
 
 
 # checks if value for particular field has fluctuated by more than 'amount' specified by parameter since previous timestamp on the same day
+# TODO : repurpose this for phase 2 ******
 def fluctuation_exceeds(value, entry, amount):
     sql_ref = sql.ref_prev_value(entry)
     db.cursor.execute(sql_ref)
@@ -261,9 +262,9 @@ def fluctuation_exceeds(value, entry, amount):
     try:
         if index - 1 < 0:
             return False
-        if abs(float(values_same_day[index]) - float(values_same_day[index - 1])) > amount:
+        if abs(float(value) - float(values_same_day[index - 1])) > amount:
             ref_value = entries_same_day[index - 1]
-            ref_info = [ref_value[0], ref_value[1], ref_value[2]]
+            ref_info = [ref_value[0], ref_value[1], ref_value[9]]
             tables.add_error_edit_code('020', value, '', entry, 'Ref. entry ID: {}, '
                                                                 'Value: {}, '
                                                                 'Datetime of reference: {}'.format(*ref_info))

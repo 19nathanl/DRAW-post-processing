@@ -36,8 +36,6 @@ def equation_resultant_value(entry):
     match equation_num:
 
         case 1:
-            # TODO : re-add atb, boro_inst_cor if needed
-
             field_ids = [item[1] for item in non_dupl_row_values]
             field_ids_sorted = sorted(field_ids)
 
@@ -94,7 +92,7 @@ def equation_resultant_value(entry):
                 return None
 
             try:
-                m = 187 / (56573 + 123.1*float(temp_air) + 0.003*187)  # TODO : verify w/ Vicky if just using direct version of equation w/ field_id 7 is better
+                m = 187 / (56573 + 123.1*float(temp_air) + 0.003*187)  # TODO : verify w/ Vicky
                 baro_slp = round(float(baro_inst_cor) * (10**m - (0.000101 * (float(atb) - 32) - 0.0000102 * (float(atb) - 62) / 1 + 0.000101 * (float(atb) - 32))), 3)
                 return baro_slp
             except ValueError:
