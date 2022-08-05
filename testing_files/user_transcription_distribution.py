@@ -16,12 +16,12 @@ users_transcription_list = []
 counter = 0
 start = time.time()
 for i in users:
-    id = i[0]
+    user_id = i[0]
     sql_command = "SELECT COUNT(*) from data_entries_raw " \
-                  "WHERE user_id = {};".format(id)
+                  "WHERE user_id = {};".format(user_id)
     cursor.execute(sql_command)
     num = cursor.fetchall()[0][0]
-    users_transcription_list.append([id, num])
+    users_transcription_list.append([user_id, num])
     counter += 1
     print(counter)
 
@@ -33,7 +33,7 @@ for entry in list_sorted:
 
 
 print(len(list_sorted))
-ignore_limit = 1000
+ignore_limit = 1000  # change as desired
 values = [item for item in list_sorted if item[1] > ignore_limit]
 for value in values:
     list_sorted.remove(value)

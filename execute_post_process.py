@@ -1,5 +1,6 @@
 import database_connection as db
 import create_raw_data_table as raw_data
+import observation_reconciliation as reconcile
 
 import time
 
@@ -56,19 +57,13 @@ delete_transcriptions_sql = "DELETE FROM data_entries_raw WHERE user_id IN {};".
 #####################       EXECUTE PHASE 1 (FORMAT CHECKING/CLEANING       ##################################################
 raw_entries = db.raw_data()
 
-start = time.time()
-counter = 0
 for row in raw_entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 1)
 
-    counter += 1
-    print(counter)
-print(time.time() - start)
-
 
 #####################       RECONCILE VALUES FOR SAME OBSERVATION (FIELD + DATETIME)       ###################################
-# TODO : reconcile values for same observation
+reconcile.remove_duplicates()
 
 
 #####################       EXECUTE PHASE 2 (STATISTICAL/VALIDATION CHECKING)       ##########################################

@@ -142,7 +142,7 @@ def f1(entry):
                 original_value = value
                 return_list[1] = ''
                 tables.add_error_edit_code('113', original_value, return_list[1], return_list)
-                tables.update_corrected_table(*return_list, 1)
+                tables.update_corrected_table(*return_list, 0)
             # value of form .XXX:
             elif methods.float_decimal_index(value) == 0:
                 leading_digits, ref_info = methods.reference_previous_values(tuple(return_list), 'leading_digits')
