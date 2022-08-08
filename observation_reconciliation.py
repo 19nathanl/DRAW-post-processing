@@ -1,3 +1,5 @@
+import time
+
 import database_connection as db
 import statistics as stats
 
@@ -14,8 +16,12 @@ def update_temp_table(entry_id, value, user_id, page_id, field_id, field_key, an
 
 
 def create_temp_table():
-    cursor.execute("CREATE TABLE IF NOT EXISTS data_entries_corrected_duplicateless AS SELECT * FROM pretend_delete_duplicates LIMIT 0;")
-    cursor.execute("DELETE FROM data_entries_corrected_duplicateless;")
+    cursor.execute("CREATE TABLE IF NOT EXISTS data_entries_corrected_duplicateless AS SELECT * FROM data_entries_corrected LIMIT 0;")
+    cursor.execute("SELECT COUNT(*) FROM data_entries_corrected_duplicateless;")
+    count = cursor.fetchall()[0][0]
+    if count != 0:
+        cursor.execute("DELETE FROM data_entries_corrected_duplicateless;")
+        db.commit()
     # TODO : add indexes 'data_entries_corrected_duplicateless_field_date' on field_id, observation_date to speed up code
 
 
@@ -24,6 +30,7 @@ def remove_duplicates():
     cursor.execute("SELECT * FROM data_entries_corrected;")
     data_entries = cursor.fetchall()
 
+    counter = 0
     checked_entries = {}
     for entry in data_entries:
         if entry[9] is not None and entry[0] not in checked_entries.keys():
@@ -36,25 +43,32 @@ def remove_duplicates():
             else:
                 try:
                     chosen_value = stats.mode([item[1] for item in duplicates])
-                    for i in duplicates:
-                        if i[1] == chosen_value:
-                            update_temp_table(*i)
+                    for i in range(len(duplicates)):
+                        if duplicates[i][1] == chosen_value:
+                            update_temp_table(*duplicates[i])
                             break
-                    for item in duplicates[1:]:
-                        checked_entries[item[0]] = item[0]
+                    for item in duplicates:
+                        checked_entries[item[0]] = None
                 # if the observation does not have a mode value, choose transcription from user with most entries in the database and add to the temp table
                 except stats.StatisticsError:
                     user_entries_list = []
                     for duplicate in duplicates:
-                        cursor.execute("SELECT COUNT(*) FROM pretend_delete_duplicates "
+                        cursor.execute("SELECT COUNT(*) FROM data_entries_corrected "
                                        "WHERE user_id = {};".format(duplicate[2]))
                         user_entries_list.append([duplicate[2], cursor.fetchall()[0][0]])
                     sorted_user_entries_list = sorted(user_entries_list, key=lambda x: x[1])
                     chosen_user = sorted_user_entries_list[len(sorted_user_entries_list) - 1][0]
                     chosen_entry = tuple([duplicate for duplicate in duplicates if duplicate[2] == chosen_user])
                     update_temp_table(*chosen_entry)
-                    for item in duplicates[1:]:
+                    for item in duplicates:
                         checked_entries[item[0]] = item[0]
         elif entry[9] is None and entry not in checked_entries:
             update_temp_table(*entry)
+        counter += 1
+        print(counter)
     # TODO : rename duplicateless table to regular 'data_entries_corrected' table, and delete old table with duplicates
+
+
+start = time.time()
+remove_duplicates()
+print("Took {} seconds to run.".format(str(time.time() - start)))
