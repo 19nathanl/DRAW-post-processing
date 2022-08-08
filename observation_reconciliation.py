@@ -67,6 +67,7 @@ def remove_duplicates():
         counter += 1
         print(counter)
     # TODO : rename duplicateless table to regular 'data_entries_corrected' table, and delete old table with duplicates
+    # TODO : re-add 'data_entries_corrected_date_field_user_index' index to new "data_entries_corrected" table
 
 
 start = time.time()

@@ -63,7 +63,6 @@ def equation_resultant_value(entry):
             field_ids = [item[1] for item in non_dupl_row_values]
             field_ids_sorted = sorted(field_ids)
 
-            # TODO : change for SLP equation including => (9 or 10) and (4 or 6)
             baro_inst_cor_list = [True for item in field_ids_sorted if item in [4, 6]]
             if True in baro_inst_cor_list:
                 if len(baro_inst_cor_list) == 2:
@@ -104,24 +103,6 @@ def equation_resultant_value(entry):
                 return baro_slp
             except ValueError:
                 return None
-
-
-# in the case that a value of field_id=7 is missing leading digits, this method attempts to find them using equation 1
-def equation_1_leading_digits(entry):
-    resultant_value = equation_resultant_value(entry)
-    if resultant_value is not None:
-        return str(resultant_value)[:2]
-    else:
-        return None
-
-
-# in the case that a value of field_id=6 is missing leading digits, this method attempts to find them using equation 2
-def equation_2_leading_digits(entry):
-    resultant_value = equation_resultant_value(entry)
-    if resultant_value is not None:
-        return str(resultant_value)[:2]
-    else:
-        return None
 
 
 ##################### CONDITIONAL STATEMENT CHECKS BELOW #####################

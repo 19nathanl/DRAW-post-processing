@@ -11,7 +11,7 @@ decimal_point_alternates = [';', '-', '/', ',']
 
 
 # values that can be disregarded automatically; method converts all data entries to lowercase to catch cases where term appears capitalized and uncapitalized
-disregarded_values = ['empty', 'blank', 'retracted', 'empty / blank', 'vide', 'none existant', 'illegible']
+disregarded_values = ['empty', 'blank', 'retracted', 'empty / blank', 'vide', 'none existant', 'illegible']  # TODO : add '' (?)
 
 
 # possible leading digits for a pressure value:
