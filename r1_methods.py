@@ -85,36 +85,24 @@ def equation_resultant_value(entry):
                     temp_air = [item[0] for item in non_dupl_row_values if (item[1] == 10 or item[1] == 9)][0]
             else:
                 return None
-            atb_list = [True for item in field_ids_sorted if item in [5]]
-            if True in atb_list:
-                atb = [item[0] for item in non_dupl_row_values if item[1] == 5][0]
+            baro_32_list = [True for item in field_ids_sorted if item == 7]
+            if True in baro_32_list:
+                baro_32 = [item[0] for item in non_dupl_row_values if item[1] == 7][0]
             else:
                 return None
 
+            # atb_list = [True for item in field_ids_sorted if item in [5]]
+            # if True in atb_list:
+            #     atb = [item[0] for item in non_dupl_row_values if item[1] == 5][0]
+            # else:
+            #     return None  TODO : remove once fully confirmed that atb (field_id 5) not needed
+
             try:
-                m = 187 / (56573 + 123.1*float(temp_air) + 0.003*187)  # TODO : verify w/ Vicky
-                baro_slp = round(float(baro_inst_cor) * (10**m - (0.000101 * (float(atb) - 32) - 0.0000102 * (float(atb) - 62) / 1 + 0.000101 * (float(atb) - 32))), 3)
+                m = 187 / (56573 + 123.1*float(temp_air) + 0.003*187)
+                baro_slp = round(float(baro_32) + float(baro_inst_cor)*((10**m) - 1), 3)
                 return baro_slp
             except ValueError:
                 return None
-
-
-# in the case that a value of field_id=7 is missing leading digits, this method attempts to find them using equation 1
-def equation_1_leading_digits(entry):
-    resultant_value = equation_resultant_value(entry)
-    if resultant_value is not None:
-        return str(resultant_value)[:2]
-    else:
-        return None
-
-
-# in the case that a value of field_id=6 is missing leading digits, this method attempts to find them using equation 2
-def equation_2_leading_digits(entry):
-    resultant_value = equation_resultant_value(entry)
-    if resultant_value is not None:
-        return str(resultant_value)[:2]
-    else:
-        return None
 
 
 ##################### CONDITIONAL STATEMENT CHECKS BELOW #####################

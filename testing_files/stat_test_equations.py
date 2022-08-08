@@ -15,7 +15,7 @@ cursor.execute("SELECT id FROM pressure_entries_phase1_errors WHERE error_code I
 excluded_ids = [item[0] for item in cursor.fetchall()]
 
 # pulls all entries of values that didn't have leading digits added to them in phase 1, but are cleaned up appropriately
-cursor.execute("SELECT * FROM pressure_entries_corrected WHERE field_id IN (7,8) AND id IN {} AND flagged = 0;".format(tuple(excluded_ids)))
+cursor.execute("SELECT * FROM pressure_entries_corrected WHERE field_id IN (7,8) AND id NOT IN {} AND flagged = 0;".format(tuple(excluded_ids)))
 corr_vals_excl_lead_dig = cursor.fetchall()
 
 field_ids_7 = []

@@ -2,7 +2,6 @@ import database_connection as db
 import create_raw_data_table as raw_data
 import observation_reconciliation as reconcile
 
-import time
 
 # Importing post_process_id = 1:
 import post_process_ids.id1.f1 as f1
@@ -54,7 +53,7 @@ for i in users:
 delete_transcriptions_sql = "DELETE FROM data_entries_raw WHERE user_id IN {};".format(tuple(less_than_threshold_users))
 
 
-#####################       EXECUTE PHASE 1 (FORMAT CHECKING/CLEANING       ##################################################
+#####################       EXECUTE PHASE 1 (FORMAT CHECKING/CLEANING)       #################################################
 raw_entries = db.raw_data()
 
 for row in raw_entries:
@@ -71,12 +70,6 @@ reconcile.remove_duplicates()
 
 phase_1_entries = db.phase_1_data()
 
-counter = 0
-start = time.time()
 for row in phase_1_entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 2)
-    counter += 1
-    print(counter)
-
-print(time.time() - start)

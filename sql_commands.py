@@ -72,7 +72,7 @@ def equation_retrieve_row(entry, equation_num):
         case 1:
             field_ids = (4, 5, 6)  # to find field_id = 7
         case 2:
-            field_ids = (4, 5, 6, 9, 10)  # to find field_id = 8
+            field_ids = (4, 6, 7, 9, 10)  # to find field_id = 8
     user_id = entry[2]
     observation_date = str(entry[9])
     return "SELECT * FROM data_entries_corrected " \
