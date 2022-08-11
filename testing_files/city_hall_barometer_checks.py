@@ -13,13 +13,11 @@ start = time.time()
 counter = 0
 value_diff_list = []
 for baro_cor_entry in baro_inst_cor_list:
-    if counter == 25979:
-        print('stop here')
-    if baro_cor_entry[9] is not None and str(baro_cor_entry[1]).lower() not in [*config.disregarded_values, 'none', '']:
+    if baro_cor_entry[9] is not None and str(baro_cor_entry[1]).lower() not in [*config.disregarded_values, 'none']:
         cursor.execute("SELECT * FROM data_entries_corrected_duplicateless WHERE field_id = 69 AND observation_date = '{}'".format(baro_cor_entry[9]))
         result = cursor.fetchall()
         if len(result) != 0:
-            if (result[0][len(result[0]) - 1] != 1) and (str(result[0][1]).lower() not in [*config.disregarded_values, 'none', '']):
+            if (result[0][len(result[0]) - 1] != 1) and (str(result[0][1]).lower() not in [*config.disregarded_values, 'none']):
                 city_hall_baro_cor = result[0][1]
                 value_diff_list.append(round(float(city_hall_baro_cor) - float(baro_cor_entry[1]), 3))
     counter += 1

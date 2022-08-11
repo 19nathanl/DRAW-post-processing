@@ -21,7 +21,7 @@ def raw_data():
     return result
 
 
-# returning phase 1-corrected, flagged data entries from database
+# returning phase 1-corrected, duplicateless data entries => for phase 2
 def phase_1_data():
     sql_command = sql_commands.phase_1_data_sql
     cursor.execute(sql_command)

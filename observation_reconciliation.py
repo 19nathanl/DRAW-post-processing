@@ -1,22 +1,16 @@
-import time
+# This file is used to remove all duplicate transcription entries for the same observation in the database
 
 import database_connection as db
 import statistics as stats
+import tables
+import sql_commands as sql
 
 db = db.db
 cursor = db.cursor()
 
 
-def update_temp_table(entry_id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged):
-    sql_command = "INSERT INTO data_entries_corrected_duplicateless " \
-                  "(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged) " \
-                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-    cursor.execute(sql_command, (entry_id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged))
-    db.commit()
-
-
-def create_temp_table():
-    cursor.execute("CREATE TABLE IF NOT EXISTS data_entries_corrected_duplicateless AS SELECT * FROM data_entries_corrected LIMIT 0;")
+def create_duplicateless_table():
+    cursor.execute(sql.create_duplicate_table_sql)
     cursor.execute("SELECT COUNT(*) FROM data_entries_corrected_duplicateless;")
     count = cursor.fetchall()[0][0]
     if count != 0:
@@ -26,7 +20,7 @@ def create_temp_table():
 
 
 def remove_duplicates():
-    create_temp_table()
+    create_duplicateless_table()
     cursor.execute("SELECT * FROM data_entries_corrected;")
     data_entries = cursor.fetchall()
 
@@ -34,18 +28,19 @@ def remove_duplicates():
     checked_entries = {}
     for entry in data_entries:
         if entry[9] is not None and entry[0] not in checked_entries.keys():
-            cursor.execute("SELECT * FROM data_entries_corrected WHERE field_id = {} AND observation_date = '{}';".format(entry[4], str(entry[9])))
+            cursor.execute("SELECT * FROM data_entries_corrected WHERE field_id = {} "
+                           "AND observation_date = '{}';".format(entry[4], str(entry[9])))
             duplicates = cursor.fetchall()
             # if there is only one transcription for this observation, add it to the new table
             if len(duplicates) == 1:
-                update_temp_table(*entry)
+                tables.update_temp_table(*entry)
             # if observation has a mode transcription, choose the mode transcription and add it to the temp table
             else:
                 try:
                     chosen_value = stats.mode([item[1] for item in duplicates])
                     for i in range(len(duplicates)):
                         if duplicates[i][1] == chosen_value:
-                            update_temp_table(*duplicates[i])
+                            tables.update_temp_table(*duplicates[i])
                             break
                     for item in duplicates:
                         checked_entries[item[0]] = None
@@ -59,17 +54,11 @@ def remove_duplicates():
                     sorted_user_entries_list = sorted(user_entries_list, key=lambda x: x[1])
                     chosen_user = sorted_user_entries_list[len(sorted_user_entries_list) - 1][0]
                     chosen_entry = tuple([duplicate for duplicate in duplicates if duplicate[2] == chosen_user])
-                    update_temp_table(*chosen_entry)
+                    tables.update_temp_table(*chosen_entry)
                     for item in duplicates:
                         checked_entries[item[0]] = item[0]
         elif entry[9] is None and entry not in checked_entries:
-            update_temp_table(*entry)
+            tables.update_temp_table(*entry)
         counter += 1
         print(counter)
-    # TODO : rename duplicateless table to regular 'data_entries_corrected' table, and delete old table with duplicates
-    # TODO : re-add 'data_entries_corrected_date_field_user_index' index to new "data_entries_corrected" table
-
-
-start = time.time()
-remove_duplicates()
-print("Took {} seconds to run.".format(str(time.time() - start)))
+    # TODO : delete old 'data_entries_corrected' table with duplicates
