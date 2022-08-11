@@ -32,7 +32,7 @@ def reference_previous_values(entry, option):
         try:
             for i in range(start_index - 1, -1, -1):
                 try:
-                    if (list_values[i][0:2] in config.possible_lead_digits_pressure) and (config.possible_pressure_formats(list_values[i])):
+                    if (list_values[i][0:2] in config.possible_lead_digits_pressure) and (config.possible_pressure_formats(list_values[i], True)):
                         match option:
                             case 'leading_digits':
                                 ref_info = list_entries[i]
@@ -245,34 +245,3 @@ def removable_plus_minus(value):
         return False
     except ValueError:
         return False
-
-
-# checks if value for particular field has fluctuated by more than 'amount' specified by parameter since previous timestamp on the same day
-# TODO : repurpose this for phase 2 ******
-def fluctuation_exceeds(value, entry, amount):
-    sql_ref = sql.ref_prev_value(entry)
-    db.cursor.execute(sql_ref)
-    entries_same_day = db.cursor.fetchall()
-    values_same_day = [item[1] for item in entries_same_day]
-    index = 0
-    for i in entries_same_day:
-        if i[0] == entry[0]:
-            break
-        index += 1
-    try:
-        if index - 1 < 0:
-            return False
-        if abs(float(value) - float(values_same_day[index - 1])) > amount:
-            ref_value = entries_same_day[index - 1]
-            ref_info = [ref_value[0], ref_value[1], ref_value[9]]
-            tables.add_error_edit_code('020', value, '', entry, 'Ref. entry ID: {}, '
-                                                                'Value: {}, '
-                                                                'Datetime of reference: {}'.format(*ref_info))
-            return True
-    except TypeError:
-        return False
-    except ValueError:
-        return False
-    except IndexError:
-        return False
-    return False

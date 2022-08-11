@@ -1,10 +1,10 @@
 # post-processing format check algorithm for post_process_id = 1
 
-import f1_methods as methods
+import id1p1_methods as methods
 import tables
 
 
-def f1(entry):
+def phase_1(entry):
     return_list = [entry[0], entry[1], entry[2], entry[3], entry[4], entry[5], entry[6], entry[7], entry[8], entry[9]]
     value = entry[1]
 
@@ -16,9 +16,6 @@ def f1(entry):
         tables.update_corrected_table(*return_list, 0)
 
     elif value is None:
-        tables.update_corrected_table(*return_list, 0)
-
-    elif value == '':
         tables.update_corrected_table(*return_list, 0)
 
     # if not of the right form initially, corrects format and returns entry with corrected value
@@ -35,7 +32,6 @@ def f1(entry):
             tables.update_corrected_table(*return_list, 0)
 
         # TODO : 'Illegible' entries (currently disregarded)
-        # TODO : return all values as **floats** so they can be processed as necessary in phase 2
         # TODO : append error_code in corrected table to any value being passed to said table with value '1'
 
         elif value == '':
@@ -420,7 +416,7 @@ def f1(entry):
                 value = value[:index]
                 return_list[1] = value
                 tables.add_error_edit_code('112', original_value, return_list[1], return_list)
-                f1(tuple(return_list))  # once we've parsed the entry and reduced it to a single observation, put it back through same algorithm again
+                phase_1(tuple(return_list))  # once we've parsed the entry and reduced it to a single observation, put it back through same algorithm again
             else:
                 tables.add_error_edit_code('000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
