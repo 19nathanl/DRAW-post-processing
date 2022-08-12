@@ -41,7 +41,7 @@ def phase_1(entry):
             if value.isnumeric():
                 original_value = value
                 value, return_list[1] = float(value) / 1000, float(value) / 1000
-                tables.add_error_edit_code('105', original_value, value, return_list)
+                tables.add_error_edit_code(1, '105', original_value, value, return_list)
                 tables.update_corrected_table(*return_list, 0)
 
             # checking and fixing accordingly if pressure value of form 0.XXX, 2.XXX, 3.XXX, or 9.XXX
@@ -60,26 +60,26 @@ def phase_1(entry):
                             value = list(value)
                             value[0] = leading_digits
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('110', original_value, return_list[1], return_list, 'Ref. entry ID: {}, '
-                                                                                                           'Value: {}, '
-                                                                                                           'Datetime of reference: {}'.format(*ref_info))
+                            tables.add_error_edit_code(1, '110', original_value, return_list[1], return_list, 'Ref. entry ID: {}, '
+                                                                                                              'Value: {}, '
+                                                                                                              'Datetime of reference: {}'.format(*ref_info))
                             tables.update_corrected_table(*return_list, 0)
                         else:
                             original_value = value
                             value = list(value)
                             value[0] = '29'
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                             tables.update_corrected_table(*return_list, 0)
                     case 9:
                         original_value = value
                         value = list(value)
                         value.insert(0, '2')
                         value, return_list[1] = ''.join(value), ''.join(value)
-                        tables.add_error_edit_code('106', original_value, value, return_list)
+                        tables.add_error_edit_code(1, '106', original_value, value, return_list)
                         tables.update_corrected_table(*return_list, 0)
                     case _:
-                        tables.add_error_edit_code('000', value, '', return_list)
+                        tables.add_error_edit_code(1, '000', value, '', return_list)
                         tables.update_corrected_table(*return_list, 1)
             # checking and fixing accordingly if value is of form XX.XX
             elif methods.float_decimal_index(value) == 2:
@@ -90,10 +90,10 @@ def phase_1(entry):
                     value = list(value)
                     value.append('0')
                     value, return_list[1] = ''.join(value), ''.join(value)
-                    tables.add_error_edit_code('107', original_value, value, return_list)
+                    tables.add_error_edit_code(1, '107', original_value, value, return_list)
                     tables.update_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code('000', value, '', return_list)
+                tables.add_error_edit_code(1, '000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
 
 
@@ -106,20 +106,20 @@ def phase_1(entry):
             elif methods.float_decimal_index(value) == 3:
                 original_value = value
                 value, return_list[1] = round(float(value) / 10, 3), round(float(value) / 10, 3)
-                tables.add_error_edit_code('105', original_value, value, return_list)
+                tables.add_error_edit_code(1, '105', original_value, value, return_list)
                 tables.update_corrected_table(*return_list, 0)
             # value of form XXXX.X:
             elif methods.float_decimal_index(value) == 4:
                 original_value = value
                 value, return_list[1] = float(value) / 100, float(value) / 100
-                tables.add_error_edit_code('105', original_value, value, return_list)
+                tables.add_error_edit_code(1, '105', original_value, value, return_list)
                 tables.update_corrected_table(*return_list, 0)
             # value of form XX.XXX where decimal is instead one of ( '/'  ';'  ','  '-' )
             elif methods.pressure_decimal_alternate(value):
                 return_list[1] = methods.replace_with_decimal(value, 2, return_list)
                 tables.update_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code('000', value, '', return_list)
+                tables.add_error_edit_code(1, '000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
 
 
@@ -131,13 +131,13 @@ def phase_1(entry):
                 value.append('0')
                 value.insert(2, '.')
                 value, return_list[1] = ''.join(value), ''.join(value)
-                tables.add_error_edit_code('107', original_value, value, return_list)
+                tables.add_error_edit_code(1, '107', original_value, value, return_list)
                 tables.update_corrected_table(*return_list, 0)
             # value of form +XXX or -XXX:
             elif methods.removable_plus_minus(value):
                 original_value = value
                 return_list[1] = ''
-                tables.add_error_edit_code('113', original_value, return_list[1], return_list)
+                tables.add_error_edit_code(1, '113', original_value, return_list[1], return_list)
                 tables.update_corrected_table(*return_list, 0)
             # value of form .XXX:
             elif methods.float_decimal_index(value) == 0:
@@ -147,16 +147,16 @@ def phase_1(entry):
                     value = list(value)
                     value.insert(0, leading_digits)
                     return_list[1] = ''.join(value)
-                    tables.add_error_edit_code('110', original_value, return_list[1], return_list, 'Ref. entry ID: {}, '
-                                                                                                   'Value: {}, '
-                                                                                                   'Datetime of reference: {}'.format(*ref_info))
+                    tables.add_error_edit_code(1, '110', original_value, return_list[1], return_list, 'Ref. entry ID: {}, '
+                                                                                                      'Value: {}, '
+                                                                                                      'Datetime of reference: {}'.format(*ref_info))
                     tables.update_corrected_table(*return_list, 0)
                 else:
                     original_value = value
                     value = list(value)
                     value.insert(0, '29')
                     return_list[1] = ''.join(value)
-                    tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                    tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                     tables.update_corrected_table(*return_list, 0)
             # value of form XX.X:
             elif methods.float_decimal_index(value) == 2:
@@ -165,7 +165,7 @@ def phase_1(entry):
                     value = list(value)
                     value.append('00')
                     return_list[1] = ''.join(value)
-                    tables.add_error_edit_code('107', original_value, return_list[1], return_list)
+                    tables.add_error_edit_code(1, '107', original_value, return_list[1], return_list)
                     tables.update_corrected_table(*return_list, 0)
                 else:
                     return_list[1] = methods.remove_elements_at_indices(value, 2, return_list)  # convert to form XXX
@@ -176,7 +176,7 @@ def phase_1(entry):
                         value.insert(0, leading_digits)
                         value.insert(1, '.')
                         value, return_list[1] = ''.join(value), ''.join(value)
-                        tables.add_error_edit_code('110', original_value, value, return_list,
+                        tables.add_error_edit_code(1, '110', original_value, value, return_list,
                                                    'Ref. entry ID: {}, '
                                                    'Value: {}, '
                                                    'Datetime of reference: {}'.format(*ref_info))
@@ -186,7 +186,7 @@ def phase_1(entry):
                         value = list(return_list[1])
                         value.insert(0, '29.')
                         return_list[1] = ''.join(value)
-                        tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                        tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                         tables.update_corrected_table(*return_list, 0)
             # value of form X.XX:
             elif methods.float_decimal_index(value) == 1:
@@ -199,7 +199,7 @@ def phase_1(entry):
                         value.insert(0, leading_digits)
                         value.insert(1, '.')
                         return_list[1] = ''.join(value)
-                        tables.add_error_edit_code('110', original_value, return_list[1], return_list,
+                        tables.add_error_edit_code(1, '110', original_value, return_list[1], return_list,
                                                    'Ref. entry ID: {}, '
                                                    'Value: {}, '
                                                    'Datetime of reference: {}'.format(*ref_info))
@@ -209,7 +209,7 @@ def phase_1(entry):
                         value = list(return_list[1])
                         value.insert(0, '29.')
                         return_list[1] = ''.join(value)
-                        tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                        tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                         tables.update_corrected_table(*return_list, 0)
                 else:  # if value is of form '0.XX':
                     if entry[4] == 8:
@@ -219,7 +219,7 @@ def phase_1(entry):
                             value = list(value)
                             value[0] = leading_digits
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('110', original_value, return_list[1], return_list,
+                            tables.add_error_edit_code(1, '110', original_value, return_list[1], return_list,
                                                        'Ref. entry ID: {}, '
                                                        'Value: {}, '
                                                        'Datetime of reference: {}'.format(*ref_info))
@@ -229,7 +229,7 @@ def phase_1(entry):
                             value = list(value)
                             value[0] = '29.'
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                             tables.update_corrected_table(*return_list, 0)
                     else:
                         leading_digits, ref_info = methods.reference_previous_values(tuple(return_list), 'leading_digits')
@@ -240,7 +240,7 @@ def phase_1(entry):
                             value.insert(0, '.')
                             value.insert(0, leading_digits)
                             value, return_list[1] = ''.join(value), ''.join(value)
-                            tables.add_error_edit_code('110', original_value, value, return_list,
+                            tables.add_error_edit_code(1, '110', original_value, value, return_list,
                                                        'Ref. entry ID: {}, '
                                                        'Value: {}, '
                                                        'Datetime of reference: {}'.format(*ref_info))
@@ -251,10 +251,10 @@ def phase_1(entry):
                             value.remove('.')
                             value.insert(0, '29.')
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                             tables.update_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code('000', value, '', return_list)
+                tables.add_error_edit_code(1, '000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
 
 
@@ -268,16 +268,16 @@ def phase_1(entry):
                     value.insert(0, leading_digits)
                     value.insert(1, '.')
                     return_list[1] = ''.join(value)
-                    tables.add_error_edit_code('110', original_value, return_list[1], return_list, 'Ref. entry ID: {}, '
-                                                                                                   'Value: {}, '
-                                                                                                   'Datetime of reference: {}'.format(*ref_info))
+                    tables.add_error_edit_code(1, '110', original_value, return_list[1], return_list, 'Ref. entry ID: {}, '
+                                                                                                      'Value: {}, '
+                                                                                                      'Datetime of reference: {}'.format(*ref_info))
                     tables.update_corrected_table(*return_list, 0)
                 else:
                     original_value = value
                     value = list(value)
                     value.insert(0, '29.')
                     return_list[1] = ''.join(value)
-                    tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                    tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                     tables.update_corrected_table(*return_list, 0)
             elif not value.isnumeric():
                 index = methods.float_decimal_index(value)
@@ -290,7 +290,7 @@ def phase_1(entry):
                             value = list(value)
                             value.insert(0, leading_digits)
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('110', original_value, return_list[1], return_list,
+                            tables.add_error_edit_code(1, '110', original_value, return_list[1], return_list,
                                                        'Ref. entry ID: {}, '
                                                        'Value: {}, '
                                                        'Datetime of reference: {}'.format(*ref_info))
@@ -300,18 +300,18 @@ def phase_1(entry):
                             value = list(value)
                             value.insert(0, '29')
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                             tables.update_corrected_table(*return_list, 0)
                     # value of form X.X:
                     case 1:
-                        tables.add_error_edit_code('000', value, '', return_list)
+                        tables.add_error_edit_code(1, '000', value, '', return_list)
                         tables.update_corrected_table(*return_list, 1)
                     # value of form XX.:
                     case 2:
-                        tables.add_error_edit_code('000', value, '', return_list)
+                        tables.add_error_edit_code(1, '000', value, '', return_list)
                         tables.update_corrected_table(*return_list, 1)
             else:
-                tables.add_error_edit_code('000', value, '', return_list)
+                tables.add_error_edit_code(1, '000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
 
 
@@ -323,7 +323,7 @@ def phase_1(entry):
                     value = list(value)
                     value.append('.000')
                     return_list[1] = ''.join(value)
-                    tables.add_error_edit_code('107', original_value, return_list[1], return_list)
+                    tables.add_error_edit_code(1, '107', original_value, return_list[1], return_list)
                     tables.update_corrected_table(*return_list, 0)
                 elif (float(value) < 28) or (float(value) >= 33):
                     if entry[4] == 8:
@@ -334,7 +334,7 @@ def phase_1(entry):
                             value.insert(0, leading_digits)
                             value.insert(1, '.')
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('110', original_value, return_list[1], return_list,
+                            tables.add_error_edit_code(1, '110', original_value, return_list[1], return_list,
                                                        'Ref. entry ID: {}, '
                                                        'Value: {}, '
                                                        'Datetime of reference: {}'.format(*ref_info))
@@ -344,14 +344,14 @@ def phase_1(entry):
                             value = list(value)
                             value.insert(0, '29.')
                             return_list[1] = ''.join(value)
-                            tables.add_error_edit_code('115', original_value, return_list[1], return_list)
+                            tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                             tables.update_corrected_table(*return_list, 0)
                     elif entry[4] in [67, 69]:
                         return_list[4], return_list[5] = 68, 'City Hall Attached Thermometer'
-                        tables.add_error_edit_code('111', value, '', return_list, 'Previous field_id: {}'.format(entry[4]))
+                        tables.add_error_edit_code(1, '111', value, '', return_list, 'Previous field_id: {}'.format(entry[4]))
                         tables.update_corrected_table(*return_list, 0)
                     else:
-                        tables.add_error_edit_code('000', value, '', return_list)
+                        tables.add_error_edit_code(1, '000', value, '', return_list)
                         tables.update_corrected_table(*return_list, 1)
             # value of form .X:
             elif methods.float_decimal_index(value) == 0:
@@ -360,27 +360,27 @@ def phase_1(entry):
                     original_value = value
                     value = list(value)
                     value.insert(0, leading_digits)
-                    tables.add_error_edit_code('110', original_value, ''.join(value), return_list,
+                    tables.add_error_edit_code(1, '110', original_value, ''.join(value), return_list,
                                                'Ref. entry ID: {}, '
                                                'Value: {}, '
                                                'Datetime of reference: {}'.format(*ref_info))
                     original_value = ''.join(value)
                     value.append('00')
                     return_list[1] = ''.join(value)
-                    tables.add_error_edit_code('107', original_value, return_list[1], return_list)
+                    tables.add_error_edit_code(1, '107', original_value, return_list[1], return_list)
                     tables.update_corrected_table(*return_list, 0)
                 else:
                     original_value = value
                     value = list(value)
                     value.insert(0, '29')
-                    tables.add_error_edit_code('115', original_value, ''.join(value), return_list)
+                    tables.add_error_edit_code(1, '115', original_value, ''.join(value), return_list)
                     original_value = ''.join(value)
                     value.append('00')
                     return_list[1] = ''.join(value)
-                    tables.add_error_edit_code('107', original_value, return_list[1], return_list)
+                    tables.add_error_edit_code(1, '107', original_value, return_list[1], return_list)
                     tables.update_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code('000', value, '', return_list)
+                tables.add_error_edit_code(1, '000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
 
 
@@ -394,7 +394,7 @@ def phase_1(entry):
                 return_list[1] = methods.remove_elements_at_indices(value, 1, return_list)
                 tables.update_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code('000', value, '', return_list)
+                tables.add_error_edit_code(1, '000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
 
 
@@ -404,7 +404,7 @@ def phase_1(entry):
                 return_list[1] = methods.remove_trailing_digits(value, 2, return_list)
                 tables.update_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code('000', value, '', return_list)
+                tables.add_error_edit_code(1, '000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
 
 
@@ -415,13 +415,13 @@ def phase_1(entry):
                 index = value.index(',')
                 value = value[:index]
                 return_list[1] = value
-                tables.add_error_edit_code('112', original_value, return_list[1], return_list)
+                tables.add_error_edit_code(1, '112', original_value, return_list[1], return_list)
                 phase_1(tuple(return_list))  # once we've parsed the entry and reduced it to a single observation, put it back through same algorithm again
             else:
-                tables.add_error_edit_code('000', value, '', return_list)
+                tables.add_error_edit_code(1, '000', value, '', return_list)
                 tables.update_corrected_table(*return_list, 1)
 
 
         else:
-            tables.add_error_edit_code('000', value, '', return_list)
+            tables.add_error_edit_code(1, '000', value, '', return_list)
             tables.update_corrected_table(*return_list, 1)

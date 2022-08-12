@@ -33,14 +33,14 @@ def remove_duplicates():
             duplicates = cursor.fetchall()
             # if there is only one transcription for this observation, add it to the new table
             if len(duplicates) == 1:
-                tables.update_temp_table(*entry)
+                tables.update_duplicateless_table(*entry)
             # if observation has a mode transcription, choose the mode transcription and add it to the temp table
             else:
                 try:
                     chosen_value = stats.mode([item[1] for item in duplicates])
                     for i in range(len(duplicates)):
                         if duplicates[i][1] == chosen_value:
-                            tables.update_temp_table(*duplicates[i])
+                            tables.update_duplicateless_table(*duplicates[i])
                             break
                     for item in duplicates:
                         checked_entries[item[0]] = None
@@ -54,11 +54,11 @@ def remove_duplicates():
                     sorted_user_entries_list = sorted(user_entries_list, key=lambda x: x[1])
                     chosen_user = sorted_user_entries_list[len(sorted_user_entries_list) - 1][0]
                     chosen_entry = tuple([duplicate for duplicate in duplicates if duplicate[2] == chosen_user])
-                    tables.update_temp_table(*chosen_entry)
+                    tables.update_duplicateless_table(*chosen_entry)
                     for item in duplicates:
                         checked_entries[item[0]] = item[0]
         elif entry[9] is None and entry not in checked_entries:
-            tables.update_temp_table(*entry)
+            tables.update_duplicateless_table(*entry)
         counter += 1
         print(counter)
     # TODO : delete old 'data_entries_corrected' table with duplicates
