@@ -3,6 +3,7 @@ import tables
 import create_raw_data_table as raw_data
 import observation_reconciliation as reconcile
 import remove_low_transcription_users as remove_ltu
+import outlier_remediation
 
 # Importing post_process_id = 1:
 import post_process_ids.id1.id_1_phase_1 as id1p1
@@ -31,41 +32,41 @@ def filter_id(pp_id, entry, phase):
                     pass
 
 
-#####################       TAKE IN RAW DATA AND CREATE "raw_data_entries" TABLE       #######################################
+#####################       TAKE IN RAW DATA AND CREATE "raw_data_entries" TABLE       ########################################
 raw_data.create_raw_data_entries()
 # TODO : add relevant indexes in this file
 
 
-#####################       REMOVE ENTRIES FROM USERS WITH LESS THAN 100 TOTAL TRANSCRIBED ENTRIES       #####################
+#####################       REMOVE ENTRIES FROM USERS WITH LESS THAN 100 TOTAL TRANSCRIBED ENTRIES       ######################
 remove_ltu.delete_transcriptions()
 
 
-#####################       EXECUTE PHASE 1 (FORMAT CHECKING/CLEANING)       #################################################
+#####################       EXECUTE PHASE 1 (FORMAT CHECKING/CLEANING)       ##################################################
 raw_entries = db.raw_data()
 tables.create_corrected_data_table()
+# TODO : create error / edit table for phase 1
 
 for row in raw_entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 1)
 
 
-#####################       RECONCILE VALUES FOR SAME OBSERVATION (FIELD + DATETIME)       ###################################
+#####################       RECONCILE VALUES FOR SAME OBSERVATION (FIELD + DATETIME)       ####################################
 reconcile.remove_duplicates()
 
 
-#####################       EXECUTE PHASE 2.1 : REMOVE OUTLIERS       ########################################################
-phase_1_entries = db.phase_1_data()
+#####################       EXECUTE PHASE 2 (REMOVE OUTLIERS + STATISTICAL/VALIDATION CHECKING)       #########################
+entries = db.phase_1_data()
+tables.create_final_corrected_table()
+# TODO : create error / edit table for phase 2
+
+for row in entries:
+    outlier_fixed = outlier_remediation.patch_outlier(row)
+    if outlier_fixed is not None:
+        row[1] = outlier_fixed
 
 
 
-
-#####################       EXECUTE PHASE 2.2 : (STATISTICAL/VALIDATION CHECKING)       ######################################
-
-for row in phase_1_entries:
-    pass
-
-
-
-for row in phase_1_entries:
+for row in entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 2)

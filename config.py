@@ -29,6 +29,6 @@ def possible_pressure_formats(value, for_leading_digits):
             return True
 
 
-# Maximum ranges of value types
-pressure_min = 28.032  # 3 std.'s
-pressure_max = 31.698  # 3 std.'s
+# outlier bounds for pressure values
+pressure_min = 27.000  # 3 std.'s
+pressure_max = 33.000  # 3 std.'s

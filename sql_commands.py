@@ -25,7 +25,7 @@ raw_data_sql = "SELECT * FROM data_entries_raw;"
 
 create_duplicate_table_sql = "CREATE TABLE IF NOT EXISTS data_entries_corrected_duplicateless AS SELECT * FROM data_entries_corrected LIMIT 0;"
 
-phase_1_data_sql = "SELECT * FROM data_entries_corrected ORDER BY post_process_id;"
+phase_1_data_sql = "SELECT * FROM data_entries_corrected;"
 
 
 # MySQL commands used in workflow method "reference_previous_values":
