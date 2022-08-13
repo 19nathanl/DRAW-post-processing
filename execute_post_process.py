@@ -8,6 +8,7 @@ import outlier_remediation
 # Importing post_process_id = 1:
 import post_process_ids.id1.id_1_phase_1 as id1p1
 import post_process_ids.id1.id_1_phase_2 as id1p2
+import id1p2_methods
 
 db = db.db
 cursor = db.cursor()
@@ -27,7 +28,10 @@ def filter_id(pp_id, entry, phase):
         case 2:
             match pp_id:
                 case 1:
-                    id1p2.phase_2(entry)
+                    if entry[0] in pressure_lead_digs_added:
+                        id1p2.phase_2(entry, True)
+                    else:
+                        id1p2.phase_2(entry, False)
                 case 2:
                     pass
 
@@ -67,6 +71,9 @@ for row in entries:
         row_list[1] = outlier_fixed
     row = tuple(row_list)
 
+
+
+pressure_lead_digs_added = id1p2_methods.pressure_artificial_lead_digs_list()
 
 for row in entries:
     post_process_id = row[8]

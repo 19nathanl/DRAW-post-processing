@@ -1,4 +1,4 @@
-# file where all important MySQL commands are kept
+# file where all important MySQL commands are kept, or created during runtime (see methods)
 
 import datetime
 
@@ -25,7 +25,7 @@ raw_data_sql = "SELECT * FROM data_entries_raw;"
 
 create_duplicate_table_sql = "CREATE TABLE IF NOT EXISTS data_entries_corrected_duplicateless AS SELECT * FROM data_entries_corrected LIMIT 0;"
 
-phase_1_data_sql = "SELECT * FROM data_entries_corrected;"
+phase_1_data_sql = "SELECT * FROM data_entries_corrected_duplicateless;"
 
 
 # MySQL commands used in workflow method "reference_previous_values":
@@ -58,8 +58,7 @@ def check_2_command(entry, counter):
 def ref_prev_value(entry):
     field_id = entry[4]
     observation_date = entry[9]
-    return phase_1_data_sql[:len(phase_1_data_sql) - 1] + "_duplicateless " \
-                                                          "WHERE field_id = {} " \
+    return phase_1_data_sql[:len(phase_1_data_sql) - 1] + " WHERE field_id = {} " \
                                                           "AND observation_date LIKE '%{}%';".format(field_id, str(observation_date)[:10])
 
 
@@ -73,9 +72,6 @@ def equation_retrieve_row(entry, equation_num):
             field_ids = (4, 6, 7, 9, 10)  # to find field_id = 8
         case 3:
             field_ids = (5, 7)  # to find field_id = 6
-    user_id = entry[2]
     observation_date = str(entry[9])
-    return "SELECT * FROM data_entries_corrected " \
-           "WHERE observation_date = '{}' " \
-           "AND field_id IN {} " \
-           "AND user_id = {};".format(observation_date, field_ids, user_id)
+    return phase_1_data_sql[:len(phase_1_data_sql) - 1] + " WHERE observation_date = '{}' " \
+                                                          "AND field_id IN {};".format(observation_date, field_ids)

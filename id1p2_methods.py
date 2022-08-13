@@ -4,8 +4,9 @@ import config
 import sql_commands as sql
 import database_connection as db
 
+db = db.db
+cursor = db.cursor()
 
-##################### DIRECT EDITING / FIXING METHODS #####################
 
 # checks if value for particular field has fluctuated by more than 'amount' specified by parameter since previous timestamp on the same day TODO : finalize for phase 2
 def fluctuation_exceeds(value, entry, amount):
@@ -39,8 +40,8 @@ def fluctuation_exceeds(value, entry, amount):
 
 
 
-def pressure_change_temporal_scalar(entry):
-    pass
+def pressure_change_scalar(entry):
+    pass  # TODO : rewrite above function
 
 
 # returns the resultant value for field_id based on equation 1 or 2 (as indicated by equation_num), given presence of associated variables
@@ -153,20 +154,8 @@ def equation_resultant_value(entry):
                 return None
 
 
-##################### CONDITIONAL STATEMENT CHECKS BELOW #####################
-
-# local sanity (range) check
-def out_of_range(value, post_process_id):
-    minimum, maximum = None, None
-    match post_process_id:
-        case 1:
-            minimum = config.pressure_min
-            maximum = config.pressure_max
-        case _:
-            pass
-
-    try:
-        if (float(value) < minimum) or (float(value) > maximum):
-            return True
-    except ValueError:
-        print("Format-checked value couldn't be treated as a number: " + str(value))
+# returns list of id's corresponding to values whose leading digits have been added artificially in phase 1
+def pressure_artificial_lead_digs_list():
+    cursor.execute("SELECT * FROM data_entries_phase1_errors "
+                   "WHERE error_code IN (110,115);")
+    return set([item[0] for item in cursor.fetchall()])
