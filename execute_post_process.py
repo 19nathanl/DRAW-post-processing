@@ -61,10 +61,11 @@ tables.create_final_corrected_table()
 # TODO : create error / edit table for phase 2
 
 for row in entries:
-    outlier_fixed = outlier_remediation.patch_outlier(row)
+    row_list = list(row)
+    outlier_fixed = outlier_remediation.patch_outlier(row_list)
     if outlier_fixed is not None:
-        row[1] = outlier_fixed
-
+        row_list[1] = outlier_fixed
+    row = tuple(row_list)
 
 
 for row in entries:

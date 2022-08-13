@@ -30,5 +30,5 @@ def possible_pressure_formats(value, for_leading_digits):
 
 
 # outlier bounds for pressure values
-pressure_min = 27.000  # 3 std.'s
-pressure_max = 33.000  # 3 std.'s
+pressure_min = 27.000
+pressure_max = 33.000
