@@ -10,17 +10,12 @@ cursor = db.cursor()
 
 
 def fluctuation_exceeds_normal(entry):
-    # obtain list of values from same day => if values before and after are present AND not more than 12 hours away (each side)
-    # AND values are both of adequate pressure format, see if scalar on each side does not exceed fluctuation determined by
-    # statistics ran in 'pressure_fluctuation_stats.py' file
-    #
     # way to structure the above: go back previously first and iterate for each value to check if it's acceptable; THEN do the same for subsequent values
     # => ensure (FIRST) if there is a value before / after the one we're analyzing in the returned list, (SECOND) that it's of acceptable pressure format,
     # (THIRD) if it's not 12 hours away => if values stray further away from 12 hours at that point, ignore that side of the fluctuation and do not let it
     # influence outcome (i.e. just have outcome be based on the other side); if both sides are unsuitable, return result that does not influence outcome;
     # i.e. the program would assume that the fluctuation check confirmed that it was bad
 
-    # returns True or False, depending on whether the fluctuation exceeded normal limit for given month
     def step_through_adjacent_day(entry_list, which_side):
         sql_command = None
         match which_side:

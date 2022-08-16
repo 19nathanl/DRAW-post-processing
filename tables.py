@@ -5,8 +5,8 @@ db = db.db
 cursor = db.cursor()
 
 
-#  command to create composite raw data table from data entries, fields and annotations tables; creating this table is necessary as it enables the
-# addition of indexes, which speeds up code considerably during runtime
+# command to create composite raw data table from data entries, fields and annotations tables; creating this table is necessary as it enables the
+# addition of indexes (which speeds up code considerably during runtime) and standardizes organization of data in DRAW post-processing
 def create_raw_data_table():
     cursor.execute(sql.composite_raw_data_entries)
 
@@ -18,14 +18,27 @@ def create_corrected_data_table():
     add_flagged_column = "ALTER TABLE data_entries_corrected ADD flagged INT NOT NULL;"
     cursor.execute(add_flagged_column)
     db.commit()
-    # TODO : add indexes if necessary
+
+
+# create 'data_entries_corrected_duplicateless' table to store values after reconciled (post-phase 1)
+def create_duplicateless_table():
+    cursor.execute("CREATE TABLE IF NOT EXISTS data_entries_corrected_duplicateless AS SELECT * FROM data_entries_corrected LIMIT 0;")
+    cursor.execute("SELECT COUNT(*) FROM data_entries_corrected_duplicateless;")
+    count = cursor.fetchall()[0][0]
+    if count != 0:
+        cursor.execute("DELETE FROM data_entries_corrected_duplicateless;")
+        db.commit()
 
 
 # creates 'data_entries_corrected_final' table for post-phase 2 processed data
 def create_final_corrected_table():
-    # TODO : need to ensure that corrected / duplicateless table isn't deleted before we can use it as template in SQL command below (i.e. 'AS SELECT * FROM .......')
     create_table = "CREATE TABLE data_entries_corrected_final AS SELECT * FROM data_entries_corrected_duplicateless LIMIT 0;"
     cursor.execute(create_table)
+
+
+# creates 'data_entries_phase{}_errors' table for error and edit documentation
+def create_error_edit_table(phase):
+    cursor.execute(sql.create_error_edit_table(phase))
 
 
 # adds entry to "data_entries_corrected" or "data_entries_corrected_final" table
@@ -67,3 +80,9 @@ def update_duplicateless_table(value, entry_id):
                   "WHERE id = %s;"
     cursor.execute(sql_command, (value, entry_id))
     db.commit()
+
+
+# deletes MySQL table at the very end of post-processing
+def delete_table(name):
+    sql_command = "DROP TABLE {};".format(name)
+    cursor.execute(sql_command)

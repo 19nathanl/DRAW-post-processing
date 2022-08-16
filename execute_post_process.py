@@ -2,12 +2,12 @@ import database_connection as db
 import tables
 import observation_reconciliation as reconcile
 import remove_low_transcription_users as remove_ltu
-import outlier_remediation
 import mysql_indexes
 
 # Importing post_process_id = 1:
 import post_process_ids.id1.id_1_phase_1 as id1p1
 import post_process_ids.id1.id_1_phase_2 as id1p2
+import post_process_ids.id1.id_1_outliers as id1outliers
 import id1p2_methods
 
 db = db.db
@@ -34,6 +34,13 @@ def filter_id(pp_id, entry, phase):
                         id1p2.phase_2(entry, False)
                 case 2:
                     pass
+        # outlier removal
+        case 'outlier_removal':
+            match pp_id:
+                case 1:
+                    return id1outliers.patch_outlier(entry)
+                case 2:
+                    pass
 
 
 #####################       TAKE IN RAW DATA AND CREATE "raw_data_entries" TABLE       ########################################
@@ -43,12 +50,14 @@ mysql_indexes.data_entries_raw('user', 'create')
 
 #####################       REMOVE ENTRIES FROM USERS WITH LESS THAN 100 TOTAL TRANSCRIBED ENTRIES       ######################
 remove_ltu.delete_transcriptions()
-
+mysql_indexes.data_entries_raw('user', 'delete')
 
 #####################       EXECUTE PHASE 1 (FORMAT CHECKING/CLEANING)       ##################################################
+mysql_indexes.data_entries_raw('annotation', 'create')
+mysql_indexes.data_entries_raw('field_date', 'create')
 raw_entries = db.raw_data()
 tables.create_corrected_data_table()
-# TODO : create error / edit table for phase 1
+tables.create_error_edit_table(1)
 
 for row in raw_entries:
     post_process_id = row[8]
@@ -56,17 +65,21 @@ for row in raw_entries:
 
 
 #####################       RECONCILE VALUES FOR SAME OBSERVATION (FIELD + DATETIME)       ####################################
+mysql_indexes.data_entries_corrected('field_date_user', 'create')
+tables.create_duplicateless_table()
 reconcile.remove_duplicates()
+mysql_indexes.data_entries_corrected_duplicateless('field_date', 'create')
 
 
 #####################       EXECUTE PHASE 2 (REMOVE OUTLIERS + STATISTICAL/VALIDATION CHECKING)       #########################
 entries = db.phase_1_data()
 tables.create_final_corrected_table()
-# TODO : create error / edit table for phase 2
+tables.create_error_edit_table(2)
 
 for row in entries:
     row_list = list(row)
-    outlier_fixed = outlier_remediation.patch_outlier(row_list)
+    post_process_id = row[8]
+    outlier_fixed = filter_id(post_process_id, row, 'outlier_removal')
     if outlier_fixed is not None:
         row_list[1] = outlier_fixed
     row = tuple(row_list)
@@ -78,3 +91,10 @@ pressure_lead_digs_added = id1p2_methods.pressure_artificial_lead_digs_list()
 for row in entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 2)
+
+
+
+#####################       DELETE ALL DISPENSABLE TABLES (KEEP FINAL + ERRORS/EDITS TABLES)       ############################
+tables.delete_table('data_entries_raw')
+tables.delete_table('data_entries_corrected')
+tables.delete_table('data_entries_corrected_duplicateless')
