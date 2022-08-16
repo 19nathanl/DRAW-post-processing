@@ -1,9 +1,9 @@
 import database_connection as db
 import tables
-import create_raw_data_table as raw_data
 import observation_reconciliation as reconcile
 import remove_low_transcription_users as remove_ltu
 import outlier_remediation
+import mysql_indexes
 
 # Importing post_process_id = 1:
 import post_process_ids.id1.id_1_phase_1 as id1p1
@@ -37,8 +37,8 @@ def filter_id(pp_id, entry, phase):
 
 
 #####################       TAKE IN RAW DATA AND CREATE "raw_data_entries" TABLE       ########################################
-raw_data.create_raw_data_entries()
-# TODO : add relevant indexes in this file
+tables.create_raw_data_table()
+mysql_indexes.data_entries_raw('user', 'create')
 
 
 #####################       REMOVE ENTRIES FROM USERS WITH LESS THAN 100 TOTAL TRANSCRIBED ENTRIES       ######################
