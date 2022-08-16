@@ -6,7 +6,7 @@ import tables
 
 
 # check for possible transcription / observation errors, other than wrong leading digits added
-def check_other_transcription_errors(value):
+def check_other_transcription_errors(value):  # TODO : add to id1p2_methods (?)
     pass
 
 
@@ -15,10 +15,10 @@ def phase_2(entry, lead_digs_added):
     value = return_list[1]
 
     if value in config.disregarded_values:
-        tables.update_corrected_table(*return_list, 1)  # TODO : debug to see if unpacking + '1' works for updating to final table
+        tables.add_to_corrected_table(*return_list, 1)  # TODO : debug to see if unpacking + '1' works for updating to final table
 
     elif value is None:
-        tables.update_corrected_table(*return_list, 1)  # TODO : debug to see if unpacking + '1' works for updating to final table
+        tables.add_to_corrected_table(*return_list, 1)  # TODO : debug to see if unpacking + '1' works for updating to final table
 
     if return_list[4] in {6, 7, 8}:
         diff_equation_transcribed = abs(float(value) - methods.equation_resultant_value(entry))

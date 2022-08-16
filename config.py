@@ -37,8 +37,6 @@ pressure_max = 33.000
 scalar_fluctuation_thresholds = {'01': 0.00, '02': 0.00, '03': 0.00, '04': 0.00, '05': 0.00, '06': 0.00,
                                  '07': 0.00, '08': 0.00, '09': 0.00, '10': 0.00, '11': 0.00, '12': 0.00}
 
-fluctuation_threshold = None  # TODO : replace with sensible threshold based on month / field_id (?)
-
 # amount of time (in hours) between timestamps, for which a pressure fluctuation isn't granular enough
 time_delta_limit = 12
 
