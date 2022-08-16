@@ -55,11 +55,10 @@ def check_2_command(entry, counter):
 
 
 # finds value for same field_id and up one row in the ledger sheet (i.e. in the previous timestamp)
-def ref_prev_value(entry):
+def ref_adjacent_fluctuations(entry, obs_datetime):
     field_id = entry[4]
-    observation_date = entry[9]
     return phase_1_data_sql[:len(phase_1_data_sql) - 1] + " WHERE field_id = {} " \
-                                                          "AND observation_date LIKE '%{}%';".format(field_id, str(observation_date)[:10])
+                                                          "AND observation_date LIKE '%{}%' ".format(field_id, str(obs_datetime)[:10])
 
 
 # retrieves relevant field_id's in ledger sheet, to calculate particular field_id based on other two elements, using equation 1, 2 oe 3

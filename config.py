@@ -34,14 +34,20 @@ pressure_min = 27.000
 pressure_max = 33.000
 
 # threshold value for which fluctuation between previous timestamp and current timestamp (for same field id) requires further investigation (phase 2)
+scalar_fluctuation_thresholds = {'01': 0.00, '02': 0.00, '03': 0.00, '04': 0.00, '05': 0.00, '06': 0.00,
+                                 '07': 0.00, '08': 0.00, '09': 0.00, '10': 0.00, '11': 0.00, '12': 0.00}
+
 fluctuation_threshold = None  # TODO : replace with sensible threshold based on month / field_id (?)
+
+# amount of time (in hours) between timestamps, for which a pressure fluctuation isn't granular enough
+time_delta_limit = 12
 
 # threshold value for which difference between transcribed and equation value requires further investigation (phase 2)
 pressure_diff_threshold = 0.300
 
 
-# intervals of interest for difference between transcribed and equation value - used for discerning values whose leading digits have (likely) been added incorrectly;
-# configure the floats in the conditional statements according to your own statistical results (see stat_test_equations.py)
+# intervals of interest for difference between transcribed and equation value - used for discerning values whose leading digits have (likely) been added incorrectly,
+# hence the intervals occurring at +/- 1 range; configure the floats in the conditional statements according to your own statistical results (see stat_test_equations.py)
 def possible_wrong_lead_digs_id_7(value):
     try:
         value = float(value)

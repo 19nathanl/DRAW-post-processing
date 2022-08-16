@@ -13,6 +13,7 @@ def patch_outlier(entry):
                 value = list(value)
                 value[0] = '2'
                 value = ''.join(value)
+                # TODO : update value in corrected / duplicateless table because phase 2 will rely on values from same table with same outliers
                 tables.add_error_edit_code(2, '121', original_value, value, entry[:len(entry) - 1])
                 return value
             elif value[1] == '0' and value[0] != '3':
@@ -20,6 +21,7 @@ def patch_outlier(entry):
                 value = list(value)
                 value[0] = '3'
                 value = ''.join(value)
+                # TODO : update value in corrected / duplicateless table because phase 2 will rely on values from same table with same outliers
                 tables.add_error_edit_code(2, '121', original_value, value, entry[:len(entry) - 1])
                 return value
             elif value[:2] == '24':
@@ -27,6 +29,7 @@ def patch_outlier(entry):
                 value = list(value)
                 value[1] = '9'
                 value = ''.join(value)
+                # TODO : update value in corrected / duplicateless table because phase 2 will rely on values from same table with same outliers
                 tables.add_error_edit_code(2, '121', original_value, value, entry[:len(entry) - 1])
                 return value
             elif value[:2] == '34':
@@ -35,6 +38,7 @@ def patch_outlier(entry):
                 value.pop(1)
                 value[0] = '29'
                 value = ''.join(value)
+                # TODO : update value in corrected / duplicateless table because phase 2 will rely on values from same table with same outliers
                 tables.add_error_edit_code(2, '121', original_value, value, entry[:len(entry) - 1])
                 return value
             elif value[:2] == '74':
@@ -43,6 +47,7 @@ def patch_outlier(entry):
                 value.pop(1)
                 value[0] = '29'
                 value = ''.join(value)
+                # TODO : update value in corrected / duplicateless table because phase 2 will rely on values from same table with same outliers
                 tables.add_error_edit_code(2, '121', original_value, value, entry[:len(entry) - 1])
                 return value
             elif value[:2] == '26':
@@ -50,6 +55,7 @@ def patch_outlier(entry):
                 value = list(value)
                 value[1] = '9'
                 value = ''.join(value)
+                # TODO : update value in corrected / duplicateless table because phase 2 will rely on values from same table with same outliers
                 tables.add_error_edit_code(2, '121', original_value, value, entry[:len(entry) - 1])
                 return value
     except TypeError:

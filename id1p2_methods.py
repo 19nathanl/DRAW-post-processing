@@ -3,45 +3,100 @@
 import config
 import sql_commands as sql
 import database_connection as db
+import datetime
 
 db = db.db
 cursor = db.cursor()
 
 
-# checks if value for particular field has fluctuated by more than 'amount' specified by parameter since previous timestamp on the same day TODO : finalize for phase 2
-def fluctuation_exceeds(value, entry, amount):
-    sql_ref = sql.ref_prev_value(entry)
-    db.cursor.execute(sql_ref)
-    entries_same_day = db.cursor.fetchall()
-    values_same_day = [item[1] for item in entries_same_day]
-    index = 0
-    for i in entries_same_day:
-        if i[0] == entry[0]:
-            break
-        index += 1
-    try:
-        pass
-        # if index - 1 < 0:
-        #     return False
-        # if abs(float(value) - float(values_same_day[index - 1])) > amount:
-        #     ref_value = entries_same_day[index - 1]
-        #     ref_info = [ref_value[0], ref_value[1], ref_value[9]]
-        #     tables.add_error_edit_code('020', value, '', entry, 'Ref. entry ID: {}, '
-        #                                                         'Value: {}, '
-        #                                                         'Datetime of reference: {}'.format(*ref_info))
-        #     return True
-    except TypeError:
-        return False
-    except ValueError:
-        return False
-    except IndexError:
-        return False
-    return False
+def fluctuation_exceeds_normal(entry):
+    # obtain list of values from same day => if values before and after are present AND not more than 12 hours away (each side)
+    # AND values are both of adequate pressure format, see if scalar on each side does not exceed fluctuation determined by
+    # statistics ran in 'pressure_fluctuation_stats.py' file
+    #
+    # way to structure the above: go back previously first and iterate for each value to check if it's acceptable; THEN do the same for subsequent values
+    # => ensure (FIRST) if there is a value before / after the one we're analyzing in the returned list, (SECOND) that it's of acceptable pressure format,
+    # (THIRD) if it's not 12 hours away => if values stray further away from 12 hours at that point, ignore that side of the fluctuation and do not let it
+    # influence outcome (i.e. just have outcome be based on the other side); if both sides are unsuitable, return result that does not influence outcome;
+    # i.e. the program would assume that the fluctuation check confirmed that it was bad
 
+    # returns True or False, depending on whether the fluctuation exceeded normal limit for given month
+    def step_through_adjacent_day(entry_list, which_side):
+        sql_command = None
+        match which_side:
+            case 'previous':
+                sql_command = sql.ref_adjacent_fluctuations(entry, entry[9] - datetime.timedelta(days=1))
+            case 'subsequent':
+                sql_command = sql.ref_adjacent_fluctuations(entry, entry[9] + datetime.timedelta(days=1))
+        cursor.execute(sql_command)
+        adjacent_day_entries = cursor.fetchall()
+        iter_direction = None
+        match which_side:
+            case 'previous':
+                iter_direction = range(len(adjacent_day_entries) - 1, -1, -1)
+            case 'subsequent':
+                iter_direction = range(len(adjacent_day_entries))
+        for index in iter_direction:
+            if adjacent_day_entries[index][9] is not None:
+                time_delta_2 = abs(((entry[9].timestamp() - adjacent_day_entries[index][9].timestamp()) / 3600))
+                if time_delta_2 < config.time_delta_limit:
+                    try:
+                        if config.possible_pressure_formats(adjacent_day_entries[index][1], False):
+                            scalar_value = abs(float(entry_list[1]) - float(adjacent_day_entries[index][1])) / time_delta_2
+                            if scalar_value > config.scalar_fluctuation_thresholds[str(entry_list[9])[5:7]]:
+                                return True
+                            else:
+                                return False
+                    except TypeError:
+                        return None
+                else:
+                    return None
+        return None
 
+    def step_through_same_day(entry_list, bef_or_aft):
+        counter = None
+        index_limit_condition = None
+        which_side = None
+        match bef_or_aft:
+            case 'before':
+                counter = -1
+                index_limit_condition = -1
+                which_side = 'previous'
+            case 'after':
+                counter = +1
+                index_limit_condition = len(entries)
+                which_side = 'subsequent'
 
-def pressure_change_scalar(entry):
-    pass  # TODO : rewrite above function
+        while True:
+            if entry_index + counter == index_limit_condition:
+                return step_through_adjacent_day(entry_list, which_side)
+            time_delta_1 = abs(((entry[9].timestamp() - entries[entry_index + counter][9].timestamp()) / 3600))
+            if time_delta_1 > 12:
+                return None
+            try:
+                if config.possible_pressure_formats(entries[entry_index + counter][1], False):
+                    scalar = abs(float(entry[1]) - float(entries[entry_index + counter][1])) / time_delta_1
+                    if scalar > config.scalar_fluctuation_thresholds[str(entry[9])[5:7]]:
+                        return True
+                    else:
+                        return False
+            except TypeError:
+                counter += counter
+                continue
+            counter += counter
+
+    if entry[9] is not None:
+        sql_ref_same_day = sql.ref_adjacent_fluctuations(entry, entry[9])
+        cursor.execute(sql_ref_same_day)
+        entries = cursor.fetchall()
+        entry_index = entries.index(entry)
+
+        left_scalar_exceeds_limit = step_through_same_day(entry, 'before')
+        right_scalar_exceeds_limit = step_through_same_day(entry, 'after')
+
+        # "None" => couldn't conclude that fluctuation didn't exceed (non-influence)  TODO : figure out conditionals once each side is determined:
+        if left_scalar_exceeds_limit and right_scalar_exceeds_limit:
+            return True
 
 
 # returns the resultant value for field_id based on equation 1 or 2 (as indicated by equation_num), given presence of associated variables
