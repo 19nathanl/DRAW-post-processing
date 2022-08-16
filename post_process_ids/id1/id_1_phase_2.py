@@ -62,6 +62,9 @@ def phase_2(entry, lead_digs_added):
                         except TypeError:
                             pass  # TODO : flag ?
 
+                    case _:
+                        pass  # TODO : other field id's => (4, 67, 69)
+
             elif not lead_digs_added:
                 pass  # TODO : add fluctuation check
                 pass  # TODO : PASS THROUGH check_other_transcription_errors()
