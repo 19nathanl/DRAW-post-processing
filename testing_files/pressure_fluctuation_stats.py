@@ -36,8 +36,6 @@ def pressure_fluctuations_1879():
                     delta_time = abs(entries_same_month[j][1].timestamp() - entries_same_month[j - 1][1].timestamp()) / 3600
                     if delta_time > 12:
                         continue
-                    if delta_pressure/delta_time > 12 and i == 11:
-                        print(j)
                     same_month_scalar.append(delta_pressure / delta_time)
                 except ValueError:
                     pass

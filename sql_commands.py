@@ -2,7 +2,7 @@
 
 import datetime
 
-composite_raw_data_entries = "CREATE TABLE data_entries_raw AS SELECT " \
+composite_raw_data_entries = "CREATE TABLE IF NOT EXISTS data_entries_raw AS SELECT " \
                              \
                              "data_entries.id, " \
                              "data_entries.value, " \
@@ -21,22 +21,40 @@ composite_raw_data_entries = "CREATE TABLE data_entries_raw AS SELECT " \
                              "LEFT JOIN annotations " \
                              "ON data_entries.annotation_id = annotations.id;"
 
-raw_data_sql = "SELECT * FROM data_entries_raw;"
 
-create_duplicate_table_sql = "CREATE TABLE IF NOT EXISTS data_entries_corrected_duplicateless AS SELECT * FROM data_entries_corrected LIMIT 0;"
+def create_error_edit_table(phase):
+    error_edit_code_table = "CREATE TABLE data_entries_phase{}_errors (" \
+                                "id INT, " \
+                                "ORIGINAL_VALUE TEXT, " \
+                                "CORRECTED_VALUE TEXT, " \
+                                "error_code VARCHAR(4) NOT NULL, " \
+                                "user_id INT, " \
+                                "page_id INT, " \
+                                "field_id INT, " \
+                                "field_key VARCHAR(255), " \
+                                "annotation_id INT, " \
+                                "transcription_id INT, " \
+                                "post_process_id INT, " \
+                                "observation_date DATETIME, " \
+                                "additional_info TEXT" \
+                            ");".format(phase)
+    return error_edit_code_table
+
+
+raw_data_sql = "SELECT * FROM data_entries_raw;"
 
 phase_1_data_sql = "SELECT * FROM data_entries_corrected_duplicateless;"
 
 
-# MySQL commands used in workflow method "reference_previous_values":
+# MySQL commands used during post-processing phases:
 
-# retrieves entries from same annotation in method "reference_previous_values"
+# retrieves entries from same annotation in method "reference_previous_values" (PHASE 1)
 def check_1_command(entry):
     annotation_id = entry[6]
     return raw_data_sql[:len(raw_data_sql) - 1] + " WHERE annotation_id = {};".format(annotation_id)
 
 
-# retrieves entries from same/previous day in same relevant field group in method "reference_previous_values"
+# retrieves entries from same/previous day in same relevant field group in method "reference_previous_values" (PHASE 1)
 def check_2_command(entry, counter):
     try:
         observation_date = entry[9] - datetime.timedelta(days=counter)
@@ -54,14 +72,14 @@ def check_2_command(entry, counter):
                                                       "AND observation_date LIKE '%{}%' ".format(str(observation_date)[:10])
 
 
-# finds value for same field_id and up one row in the ledger sheet (i.e. in the previous timestamp)
+# finds value for same field_id and up one row in the ledger sheet (i.e. in the previous timestamp) (PHASE 2)
 def ref_adjacent_fluctuations(entry, obs_datetime):
     field_id = entry[4]
     return phase_1_data_sql[:len(phase_1_data_sql) - 1] + " WHERE field_id = {} " \
                                                           "AND observation_date LIKE '%{}%' ".format(field_id, str(obs_datetime)[:10])
 
 
-# retrieves relevant field_id's in ledger sheet, to calculate particular field_id based on other two elements, using equation 1, 2 oe 3
+# retrieves relevant field_id's in ledger sheet, to calculate particular field_id based on other two elements, using equation 1, 2 oe 3 (PHASE 2)
 def equation_retrieve_row(entry, equation_num):
     field_ids = None
     match equation_num:
