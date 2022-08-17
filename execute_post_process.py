@@ -76,13 +76,14 @@ entries = db.phase_1_data()
 tables.create_final_corrected_table()
 tables.create_error_edit_table(2)
 
-for row in entries:
-    row_list = list(row)
-    post_process_id = row[8]
-    outlier_fixed = filter_id(post_process_id, row, 'outlier_removal')
+for index in range(len(entries)):
+    row_list = list(entries[index])
+    post_process_id = entries[index][8]
+    outlier_fixed = filter_id(post_process_id, entries[index], 'outlier_removal')
     if outlier_fixed is not None:
         row_list[1] = outlier_fixed
     row = tuple(row_list)
+    entries[index] = row  # TODO : debug to ensure list is edited in real time, and no information is deleted from database
 
 
 
