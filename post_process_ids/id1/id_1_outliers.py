@@ -58,6 +58,9 @@ def patch_outlier(entry):
                 tables.update_duplicateless_table(value, entry[0])
                 tables.add_error_edit_code(2, '121', original_value, value, entry[:len(entry) - 1])
                 return value
+
+        else:
+            return None
     except TypeError:
         pass
     except ValueError:
