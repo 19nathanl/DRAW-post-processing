@@ -6,7 +6,7 @@ import os
 db = mysql.connector.connect(
     user=os.environ.get('DRAW_local_db_user'),
     password=os.environ.get('DRAW_local_db_pass'),
-    database='climatedatarescuetest',
+    database='climatedatarescueprocessed',
     host='localhost'
 )
 

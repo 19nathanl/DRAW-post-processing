@@ -3,6 +3,7 @@ import tables
 import observation_reconciliation as reconcile
 import remove_low_transcription_users as remove_ltu
 import mysql_indexes
+import setup_raw_data_table as setup
 
 # Importing post_process_id = 1:
 import post_process_ids.id1.id_1_phase_1 as id1p1
@@ -44,7 +45,7 @@ def filter_id(pp_id, entry, phase):
 
 
 #####################       TAKE IN RAW DATA AND CREATE "raw_data_entries" TABLE       ########################################
-tables.create_raw_data_table()
+setup.set_up_raw_data_table()
 mysql_indexes.data_entries_raw('user', 'create')
 
 
@@ -86,13 +87,11 @@ for index in range(len(entries)):
     entries[index] = row  # TODO : debug to ensure list is edited in real time, and no information is deleted from database
 
 
-
 pressure_lead_digs_added = id1p2_methods.pressure_artificial_lead_digs_list()
 
 for row in entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 2)
-
 
 
 #####################       DELETE ALL DISPENSABLE TABLES (KEEP FINAL + ERRORS/EDITS TABLES)       ############################
