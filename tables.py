@@ -5,6 +5,21 @@ db = db.db
 cursor = db.cursor()
 
 
+# adds 'post_process_id' column to fields table, necessary before creating raw data table for post-processing
+def add_ppid_column_fields_table():
+    add_ppid_column = "ALTER TABLE fields ADD post_process_id INT;"
+    cursor.execute(add_ppid_column)
+
+
+# update fields table in DRAW database with relevant post_process_id's (e.g. '1' for pressure values)
+def update_fields_ppid(post_process_id, field_id_tuple):
+    add_post_process_ids = "UPDATE fields " \
+                           "SET post_process_id = {} " \
+                           "WHERE id IN {};".format(post_process_id, tuple(field_id_tuple))
+    cursor.execute(add_post_process_ids)
+    db.commit()
+
+
 # command to create composite raw data table from data entries, fields and annotations tables; creating this table is necessary as it enables the
 # addition of indexes (which speeds up code considerably during runtime) and standardizes organization of data in DRAW post-processing
 def create_raw_data_table():
