@@ -79,12 +79,12 @@ tables.create_error_edit_table(2)
 
 for index in range(len(entries)):
     row_list = list(entries[index])
-    post_process_id = entries[index][8]
-    outlier_fixed = filter_id(post_process_id, entries[index], 'outlier_removal')
+    post_process_id = row_list[8]
+    outlier_fixed = filter_id(post_process_id, row_list, 'outlier_removal')
     if outlier_fixed is not None:
         row_list[1] = outlier_fixed
     row = tuple(row_list)
-    entries[index] = row  # TODO : debug to ensure list is edited in real time, and no information is deleted from database
+    entries[index] = row
 
 
 pressure_lead_digs_added = id1p2_methods.pressure_artificial_lead_digs_list()

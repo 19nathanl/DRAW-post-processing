@@ -33,7 +33,7 @@ def pressure_fluctuations_1879():
             if str(entries_same_month[j][0]).lower() not in [*config.disregarded_values, 'none']:
                 try:
                     delta_pressure = abs(float(entries_same_month[j][0]) - float(entries_same_month[j - 1][0]))
-                    delta_time = abs(entries_same_month[j][1].timestamp() - entries_same_month[j - 1][1].timestamp()) / 3600
+                    delta_time = abs((entries_same_month[j][1] - entries_same_month[j - 1][1]).total_seconds() / 3600)
                     if delta_time > 12:
                         continue
                     same_month_scalar.append(delta_pressure / delta_time)
