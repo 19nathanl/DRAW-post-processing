@@ -34,7 +34,7 @@ pressure_min = 27.000
 pressure_max = 33.000
 
 # threshold value for which fluctuation between previous timestamp and current timestamp (for same field id) requires further investigation (phase 2)
-scalar_fluctuation_thresholds = {'01': 0.00, '02': 0.00, '03': 0.00, '04': 0.00, '05': 0.00, '06': 0.00,
+scalar_fluctuation_thresholds = {'01': 0.00, '02': 0.00, '03': 0.00, '04': 0.00, '05': 0.00, '06': 0.00,  # TODO : fill these out
                                  '07': 0.00, '08': 0.00, '09': 0.00, '10': 0.00, '11': 0.00, '12': 0.00}
 
 # amount of time (in hours) between timestamps, for which a pressure fluctuation isn't granular enough

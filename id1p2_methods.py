@@ -10,30 +10,22 @@ cursor = db.cursor()
 
 
 def fluctuation_exceeds_normal(entry):
-    # way to structure the above: go back previously first and iterate for each value to check if it's acceptable; THEN do the same for subsequent values
-    # => ensure (FIRST) if there is a value before / after the one we're analyzing in the returned list, (SECOND) that it's of acceptable pressure format,
-    # (THIRD) if it's not 12 hours away => if values stray further away from 12 hours at that point, ignore that side of the fluctuation and do not let it
-    # influence outcome (i.e. just have outcome be based on the other side); if both sides are unsuitable, return result that does not influence outcome;
-    # i.e. the program would assume that the fluctuation check confirmed that it was bad
 
     def step_through_adjacent_day(entry_list, which_side):
-        sql_command = None
-        match which_side:
-            case 'previous':
-                sql_command = sql.ref_adjacent_fluctuations(entry, entry[9] - datetime.timedelta(days=1))
-            case 'subsequent':
-                sql_command = sql.ref_adjacent_fluctuations(entry, entry[9] + datetime.timedelta(days=1))
-        cursor.execute(sql_command)
-        adjacent_day_entries = cursor.fetchall()
         iter_direction = None
+        adjacent_day_entries = None
         match which_side:
             case 'previous':
+                cursor.execute(sql.ref_adjacent_fluctuations(entry, entry[9] - datetime.timedelta(days=1)))
+                adjacent_day_entries = cursor.fetchall()
                 iter_direction = range(len(adjacent_day_entries) - 1, -1, -1)
             case 'subsequent':
+                cursor.execute(sql.ref_adjacent_fluctuations(entry, entry[9] + datetime.timedelta(days=1)))
+                adjacent_day_entries = cursor.fetchall()
                 iter_direction = range(len(adjacent_day_entries))
         for index in iter_direction:
             if adjacent_day_entries[index][9] is not None:
-                time_delta_2 = abs(((entry[9].timestamp() - adjacent_day_entries[index][9].timestamp()) / 3600))
+                time_delta_2 = abs((entry[9] - adjacent_day_entries[index][9]).total_seconds() / 3600)
                 if time_delta_2 < config.time_delta_limit:
                     try:
                         if config.possible_pressure_formats(adjacent_day_entries[index][1], False):
@@ -65,7 +57,7 @@ def fluctuation_exceeds_normal(entry):
         while True:
             if entry_index + counter == index_limit_condition:
                 return step_through_adjacent_day(entry_list, which_side)
-            time_delta_1 = abs(((entry[9].timestamp() - entries[entry_index + counter][9].timestamp()) / 3600))
+            time_delta_1 = abs((entry[9] - entries[entry_index + counter][9]).total_seconds() / 3600)
             if time_delta_1 > 12:
                 return None
             try:
@@ -89,9 +81,15 @@ def fluctuation_exceeds_normal(entry):
         left_scalar_exceeds_limit = step_through_same_day(entry, 'before')
         right_scalar_exceeds_limit = step_through_same_day(entry, 'after')
 
-        # "None" => couldn't conclude that fluctuation didn't exceed (non-influence)  TODO : figure out conditionals once each side is determined:
+        # "None" => couldn't conclude that fluctuation didn't exceed (does not influence outcome)
         if left_scalar_exceeds_limit and right_scalar_exceeds_limit:
             return True
+        elif (left_scalar_exceeds_limit is None) and right_scalar_exceeds_limit:
+            return True
+        elif left_scalar_exceeds_limit and (right_scalar_exceeds_limit is None):
+            return True
+        elif not (left_scalar_exceeds_limit or right_scalar_exceeds_limit):
+            return False
 
 
 # returns the resultant value for field_id based on equation 1 or 2 (as indicated by equation_num), given presence of associated variables

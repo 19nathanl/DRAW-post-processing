@@ -15,14 +15,14 @@ def phase_2(entry, lead_digs_added):
     value = return_list[1]
 
     if value in config.disregarded_values:
-        tables.add_to_corrected_table(*return_list, 1)  # TODO : debug to see if unpacking + '1' works for updating to final table
+        tables.add_to_final_corrected_table(*return_list)
 
     elif value is None:
-        tables.add_to_corrected_table(*return_list, 1)  # TODO : debug to see if unpacking + '1' works for updating to final table
+        tables.add_to_final_corrected_table(*return_list)
 
     if return_list[4] in {6, 7, 8}:
         diff_equation_transcribed = abs(float(value) - methods.equation_resultant_value(entry))
-        if diff_equation_transcribed > config.pressure_diff_threshold:
+        if diff_equation_transcribed >= config.pressure_diff_threshold:
             if lead_digs_added:
                 match return_list[4]:
 
@@ -68,3 +68,6 @@ def phase_2(entry, lead_digs_added):
             elif not lead_digs_added:
                 pass  # TODO : add fluctuation check
                 pass  # TODO : PASS THROUGH check_other_transcription_errors()
+
+        elif diff_equation_transcribed < config.pressure_diff_threshold:
+            pass  # TODO : for when difference is not great, but can try to pick out possible smaller errors
