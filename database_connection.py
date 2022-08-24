@@ -3,14 +3,14 @@ import sql_commands
 import os
 
 # connection to copy of database on local machine
-db = mysql.connector.connect(
+conn = mysql.connector.connect(
     user=os.environ.get('DRAW_local_db_user'),
     password=os.environ.get('DRAW_local_db_pass'),
     database='climatedatarescueprocessed',
     host='localhost'
 )
 
-cursor = db.cursor()
+cursor = conn.cursor()
 
 
 # returning raw data entries from database, with all necessary information (columns)

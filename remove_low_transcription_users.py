@@ -3,8 +3,8 @@
 
 import database_connection as db
 
-db = db.db
-cursor = db.cursor()
+db_conn = db.conn
+cursor = db.cursor
 
 
 def delete_transcriptions():
@@ -24,4 +24,4 @@ def delete_transcriptions():
 
     delete_transcriptions_sql = "DELETE FROM data_entries_raw WHERE user_id IN {};".format(tuple(less_than_threshold_users))
     cursor.execute(delete_transcriptions_sql)
-    db.commit()
+    db_conn.commit()

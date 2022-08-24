@@ -7,6 +7,3 @@ def set_up_raw_data_table():
     # TODO : update other field id's with their respective pp_id
 
     tables.create_raw_data_table()
-
-
-set_up_raw_data_table()
