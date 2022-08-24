@@ -49,4 +49,4 @@ def remove_duplicates():
         elif entry[9] is None and entry not in checked_entries:
             tables.add_to_duplicateless_table(*entry)
         counter += 1
-        print(counter)
+        print('Reconciliation:', counter)

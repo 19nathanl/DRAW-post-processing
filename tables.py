@@ -77,9 +77,13 @@ def add_to_final_corrected_table(entry_id, value, user_id, page_id, field_id, fi
 
 
 # add flag or edit made to particular value to "data_entries_phase{}_errors" table (depending on chosen input parameter, can be for phase 1 or 2)
-def add_error_edit_code(phase, error_code, original_value, corrected_value, entry_info, add_info=''):
-    entry_id = entry_info[0]
-    user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date = entry_info[2:]
+def add_error_edit_code(phase, error_code, original_value, corrected_value, entry_list, add_info=''):
+    entry_id = entry_list[0]
+    user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date = [None for i in range(8)]
+    if phase == 1:
+        user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date = entry_list[2:]  # deal with 10 rows
+    elif phase == 2:
+        user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date = entry_list[2:len(entry_list) - 1]  # deal with 11 rows
     sql_command = "INSERT INTO data_entries_phase{}_errors " \
                   "(id, ORIGINAL_VALUE, CORRECTED_VALUE, error_code, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, additional_info) " \
                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);".format(phase)
