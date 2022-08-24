@@ -5,7 +5,7 @@ import tables
 
 
 def phase_1(entry):
-    return_list = [entry[0], entry[1], entry[2], entry[3], entry[4], entry[5], entry[6], entry[7], entry[8], entry[9]]
+    return_list = list(entry)
     value = entry[1]
 
     # Checking to see if raw pressure value is already of form XX.XXX
@@ -79,7 +79,7 @@ def phase_1(entry):
                         tables.add_error_edit_code(1, '106', original_value, value, return_list)
                         tables.add_to_corrected_table(*return_list, 0)
                     case _:
-                        tables.add_error_edit_code(1, '000', value, '', return_list)
+                        tables.add_error_edit_code(1, '001', value, '', return_list)
                         tables.add_to_corrected_table(*return_list, 1)
             # checking and fixing accordingly if value is of form XX.XX
             elif methods.float_decimal_index(value) == 2:
@@ -93,7 +93,7 @@ def phase_1(entry):
                     tables.add_error_edit_code(1, '107', original_value, value, return_list)
                     tables.add_to_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code(1, '000', value, '', return_list)
+                tables.add_error_edit_code(1, '001', value, '', return_list)
                 tables.add_to_corrected_table(*return_list, 1)
 
 
@@ -119,7 +119,7 @@ def phase_1(entry):
                 return_list[1] = methods.replace_with_decimal(value, 2, return_list)
                 tables.add_to_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code(1, '000', value, '', return_list)
+                tables.add_error_edit_code(1, '001', value, '', return_list)
                 tables.add_to_corrected_table(*return_list, 1)
 
 
@@ -254,7 +254,7 @@ def phase_1(entry):
                             tables.add_error_edit_code(1, '115', original_value, return_list[1], return_list)
                             tables.add_to_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code(1, '000', value, '', return_list)
+                tables.add_error_edit_code(1, '001', value, '', return_list)
                 tables.add_to_corrected_table(*return_list, 1)
 
 
@@ -304,14 +304,14 @@ def phase_1(entry):
                             tables.add_to_corrected_table(*return_list, 0)
                     # value of form X.X:
                     case 1:
-                        tables.add_error_edit_code(1, '000', value, '', return_list)
+                        tables.add_error_edit_code(1, '001', value, '', return_list)
                         tables.add_to_corrected_table(*return_list, 1)
                     # value of form XX.:
                     case 2:
-                        tables.add_error_edit_code(1, '000', value, '', return_list)
+                        tables.add_error_edit_code(1, '001', value, '', return_list)
                         tables.add_to_corrected_table(*return_list, 1)
             else:
-                tables.add_error_edit_code(1, '000', value, '', return_list)
+                tables.add_error_edit_code(1, '001', value, '', return_list)
                 tables.add_to_corrected_table(*return_list, 1)
 
 
@@ -351,7 +351,7 @@ def phase_1(entry):
                         tables.add_error_edit_code(1, '111', value, '', return_list, 'Previous field_id: {}'.format(entry[4]))
                         tables.add_to_corrected_table(*return_list, 0)
                     else:
-                        tables.add_error_edit_code(1, '000', value, '', return_list)
+                        tables.add_error_edit_code(1, '001', value, '', return_list)
                         tables.add_to_corrected_table(*return_list, 1)
             # value of form .X:
             elif methods.float_decimal_index(value) == 0:
@@ -380,7 +380,7 @@ def phase_1(entry):
                     tables.add_error_edit_code(1, '107', original_value, return_list[1], return_list)
                     tables.add_to_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code(1, '000', value, '', return_list)
+                tables.add_error_edit_code(1, '001', value, '', return_list)
                 tables.add_to_corrected_table(*return_list, 1)
 
 
@@ -394,7 +394,7 @@ def phase_1(entry):
                 return_list[1] = methods.remove_elements_at_indices(value, 1, return_list)
                 tables.add_to_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code(1, '000', value, '', return_list)
+                tables.add_error_edit_code(1, '001', value, '', return_list)
                 tables.add_to_corrected_table(*return_list, 1)
 
 
@@ -404,7 +404,7 @@ def phase_1(entry):
                 return_list[1] = methods.remove_trailing_digits(value, 2, return_list)
                 tables.add_to_corrected_table(*return_list, 0)
             else:
-                tables.add_error_edit_code(1, '000', value, '', return_list)
+                tables.add_error_edit_code(1, '001', value, '', return_list)
                 tables.add_to_corrected_table(*return_list, 1)
 
 
@@ -418,10 +418,10 @@ def phase_1(entry):
                 tables.add_error_edit_code(1, '112', original_value, return_list[1], return_list)
                 phase_1(tuple(return_list))  # once we've parsed the entry and reduced it to a single observation, put it back through same algorithm again
             else:
-                tables.add_error_edit_code(1, '000', value, '', return_list)
+                tables.add_error_edit_code(1, '001', value, '', return_list)
                 tables.add_to_corrected_table(*return_list, 1)
 
 
         else:
-            tables.add_error_edit_code(1, '000', value, '', return_list)
+            tables.add_error_edit_code(1, '001', value, '', return_list)
             tables.add_to_corrected_table(*return_list, 1)

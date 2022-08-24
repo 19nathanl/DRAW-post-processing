@@ -60,9 +60,12 @@ raw_entries = db.raw_data()
 tables.create_corrected_data_table()
 tables.create_error_edit_table(1)
 
+counter = 0
 for row in raw_entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 1)
+    counter += 1
+    print('Phase 1 :', counter)
 
 
 #####################       RECONCILE VALUES FOR SAME OBSERVATION (FIELD + DATETIME)       ####################################

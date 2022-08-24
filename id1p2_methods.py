@@ -1,14 +1,18 @@
 # File in which all methods that are called upon in pressure statistical workflow are stored, for repurposability and modularity of code
 
 import config
+import tables
 import sql_commands as sql
 import database_connection as db
 import datetime
+import post_process_ids.id1.id_1_phase_2 as id_1_phase_2
 
 db = db.db
 cursor = db.cursor()
 
 
+# returns True or False, based on whether the function determines that the fluctuation between the current timestamp and BOTH adjacent timestamps
+# exceeds the average threshold (see pressure_fluctuation_stats.py)
 def fluctuation_exceeds_normal(entry):
 
     def step_through_adjacent_day(entry_list, which_side):
@@ -98,7 +102,7 @@ def equation_resultant_value(entry):
         return None
     equation_num = 0
     match entry[4]:
-        case 6:
+        case (4|6):
             equation_num = 3
         case 7:
             equation_num = 1
@@ -202,7 +206,45 @@ def equation_resultant_value(entry):
                 return None
 
 
-# returns list of id's corresponding to values whose leading digits have been added artificially in phase 1
+# checks leading digits with equation value to determine whether the wrong ones were added in phase 1
+def check_lead_digs_with_equation(diff_value, return_list, lead_digs_added_bool):
+    value = return_list[1]
+    field_id_interval_match = None
+    match return_list[4]:
+        case 4:
+            field_id_interval_match = config.possible_wrong_lead_digs_id_4(diff_value)
+        case 6:
+            field_id_interval_match = config.possible_wrong_lead_digs_id_6(diff_value)
+        case 7:
+            field_id_interval_match = config.possible_wrong_lead_digs_id_7(diff_value)
+        case 8:
+            field_id_interval_match = config.possible_wrong_lead_digs_id_8(diff_value)
+    try:
+        match field_id_interval_match:
+            case 'is_left':
+                if fluctuation_exceeds_normal(return_list):
+                    return_list[1] = str(float(value) + 1.000)
+                    tables.add_error_edit_code(2, '122', value, return_list[1], return_list)
+                    id_1_phase_2.phase_2(return_list, lead_digs_added_bool)
+            case 'is_right':
+                if fluctuation_exceeds_normal(return_list):
+                    return_list[1] = str(float(value) - 1.000)
+                    tables.add_error_edit_code(2, '122', value, return_list[1], return_list)
+                    id_1_phase_2.phase_2(return_list, lead_digs_added_bool)
+            case False:
+                pass  # TODO : PASS THROUGH check_other_transcription_errors()
+    except TypeError:
+        return_list[10] = 1
+        tables.add_to_final_corrected_table(*return_list)
+        tables.add_error_edit_code(2, '002', value, '', return_list)
+
+
+# check for possible transcription / observation errors, other than wrong leading digits added
+def check_other_transcription_errors():
+    pass
+
+
+# returns hash set of id's corresponding to values whose leading digits have been added artificially in phase 1
 def pressure_artificial_lead_digs_list():
     cursor.execute("SELECT * FROM data_entries_phase1_errors "
                    "WHERE error_code IN (110,115);")

@@ -34,7 +34,7 @@ pressure_min = 27.000
 pressure_max = 33.000
 
 # threshold value for which fluctuation between previous timestamp and current timestamp (for same field id) requires further investigation (phase 2)
-scalar_fluctuation_thresholds = {'01': 0.00, '02': 0.00, '03': 0.00, '04': 0.00, '05': 0.00, '06': 0.00,  # TODO : fill these out
+scalar_fluctuation_thresholds = {'01': 0.00, '02': 0.00, '03': 0.00, '04': 0.00, '05': 0.00, '06': 0.00,  # TODO : fill w/ pressure_fluctuation_stats results
                                  '07': 0.00, '08': 0.00, '09': 0.00, '10': 0.00, '11': 0.00, '12': 0.00}
 
 # amount of time (in hours) between timestamps, for which a pressure fluctuation isn't granular enough
@@ -46,12 +46,12 @@ pressure_diff_threshold = 0.300
 
 # intervals of interest for difference between transcribed and equation value - used for discerning values whose leading digits have (likely) been added incorrectly,
 # hence the intervals occurring at +/- 1 range; configure the floats in the conditional statements according to your own statistical results (see stat_test_equations.py)
-def possible_wrong_lead_digs_id_7(value):
+def possible_wrong_lead_digs_id_4(difference_value):  # TODO : fill in with same interval stats as other field id's below
     try:
-        value = float(value)
-        if -1.005 <= value <= -0.995:
+        difference_value = float(difference_value)
+        if -999999999 <= difference_value <= -999999999:
             return 'is_left'
-        elif 0.995 <= value <= 1.005:
+        elif -999999999 <= difference_value <= 999999999:
             return 'is_right'
         else:
             return False
@@ -59,12 +59,12 @@ def possible_wrong_lead_digs_id_7(value):
         return False
 
 
-def possible_wrong_lead_digs_id_8(value):
+def possible_wrong_lead_digs_id_6(difference_value):
     try:
-        value = float(value)
-        if -1.200 <= value <= -0.900:
+        difference_value = float(difference_value)
+        if -1.015 <= difference_value <= -0.997:
             return 'is_left'
-        elif 0.900 <= value <= 1.200:
+        elif 0.997 <= difference_value <= 1.015:
             return 'is_right'
         else:
             return False
@@ -72,12 +72,25 @@ def possible_wrong_lead_digs_id_8(value):
         return False
 
 
-def possible_wrong_lead_digs_id_6(value):
+def possible_wrong_lead_digs_id_7(difference_value):
     try:
-        value = float(value)
-        if -1.015 <= value <= -0.997:
+        difference_value = float(difference_value)
+        if -1.005 <= difference_value <= -0.995:
             return 'is_left'
-        elif 0.997 <= value <= 1.015:
+        elif 0.995 <= difference_value <= 1.005:
+            return 'is_right'
+        else:
+            return False
+    except TypeError:
+        return False
+
+
+def possible_wrong_lead_digs_id_8(difference_value):
+    try:
+        difference_value = float(difference_value)
+        if -1.200 <= difference_value <= -0.900:
+            return 'is_left'
+        elif 0.900 <= difference_value <= 1.200:
             return 'is_right'
         else:
             return False
