@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 import time
 import numpy as np
 
-db = db.db
-cursor = db.cursor()
+cursor = db.cursor
 
 
 # pulls all id's of values that had leading digits artificially added to them in phase 1
@@ -47,7 +46,7 @@ def generated_stats_field_id_6():
         value = transcribed_entry[1]
         if value is not None:
             if config.possible_pressure_formats(value, False):
-                equation_value = r1_methods.equation_resultant_value(transcribed_entry)
+                equation_value = id1p2_methods.equation_resultant_value(transcribed_entry)
                 if equation_value is not None:
                     field_id_6_comparison.append([float(transcribed_entry[1]), equation_value])
                 else:
@@ -90,7 +89,7 @@ def generated_stats_field_id_7():
         value = transcribed_entry[1]
         if value is not None:
             if config.possible_pressure_formats(value, False):
-                equation_value = r1_methods.equation_resultant_value(transcribed_entry)
+                equation_value = id1p2_methods.equation_resultant_value(transcribed_entry)
                 if equation_value is not None:
                     field_id_7_comparison.append([float(transcribed_entry[1]), equation_value])
                 else:
@@ -132,7 +131,7 @@ def generated_stats_field_id_8():
         value = transcribed_entry[1]
         if value is not None:
             if config.possible_pressure_formats(value, False):
-                equation_value = r1_methods.equation_resultant_value(transcribed_entry)
+                equation_value = id1p2_methods.equation_resultant_value(transcribed_entry)
                 if equation_value is not None:
                     field_id_8_comparison.append([float(transcribed_entry[1]), equation_value])
                 else:

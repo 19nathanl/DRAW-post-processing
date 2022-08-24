@@ -4,8 +4,7 @@ import database_connection as db
 import statistics as stats
 import tables
 
-db = db.db
-cursor = db.cursor()
+cursor = db.cursor
 
 
 def remove_duplicates():

@@ -3,8 +3,8 @@
 import database_connection as db
 import sql_commands as sql
 
-db = db.db
-cursor = db.cursor()
+db_conn = db.conn
+cursor = db.cursor
 
 
 # adds 'post_process_id' column to fields table, necessary before creating raw data table for post-processing
@@ -19,7 +19,7 @@ def update_fields_ppid(post_process_id, field_id_tuple):
                            "SET post_process_id = {} " \
                            "WHERE id IN {};".format(post_process_id, tuple(field_id_tuple))
     cursor.execute(add_post_process_ids)
-    db.commit()
+    db_conn.commit()
 
 
 # command to create composite raw data table from data entries, fields and annotations tables; creating this table is necessary as it enables the
@@ -34,7 +34,7 @@ def create_corrected_data_table():
     cursor.execute(create_table)
     add_flagged_column = "ALTER TABLE data_entries_corrected ADD flagged INT NOT NULL;"
     cursor.execute(add_flagged_column)
-    db.commit()
+    db_conn.commit()
 
 
 # create 'data_entries_corrected_duplicateless' table to store values after reconciled (post-phase 1)
@@ -44,7 +44,7 @@ def create_duplicateless_table():
     count = cursor.fetchall()[0][0]
     if count != 0:
         cursor.execute("DELETE FROM data_entries_corrected_duplicateless;")
-        db.commit()
+        db_conn.commit()
 
 
 # creates 'data_entries_corrected_final' table for post-phase 2 processed data
@@ -64,7 +64,7 @@ def add_to_corrected_table(entry_id, value, user_id, page_id, field_id, field_ke
                   "(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged) " \
                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
     cursor.execute(sql_command, (entry_id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged))
-    db.commit()
+    db_conn.commit()
 
 
 # adds entry to "data_entries_corrected_final" table (after phase 2 checking)
@@ -73,7 +73,7 @@ def add_to_final_corrected_table(entry_id, value, user_id, page_id, field_id, fi
                   "(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged) " \
                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
     cursor.execute(sql_command, (entry_id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged))
-    db.commit()
+    db_conn.commit()
 
 
 # add flag or edit made to particular value to "data_entries_phase{}_errors" table (depending on chosen input parameter, can be for phase 1 or 2)
@@ -84,11 +84,11 @@ def add_error_edit_code(phase, error_code, original_value, corrected_value, entr
         user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date = entry_list[2:]  # deal with 10 rows
     elif phase == 2:
         user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date = entry_list[2:len(entry_list) - 1]  # deal with 11 rows
-    sql_command = "INSERT INTO data_entries_phase{}_errors " \
+    sql_command = "INSERT INTO data_entries_phase_{}_errors " \
                   "(id, ORIGINAL_VALUE, CORRECTED_VALUE, error_code, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, additional_info) " \
                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);".format(phase)
     cursor.execute(sql_command, (entry_id, original_value, corrected_value, error_code, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, add_info))
-    db.commit()
+    db_conn.commit()
 
 
 # add reconciled observation entry to duplicateless table (after phase 1)
@@ -97,7 +97,7 @@ def add_to_duplicateless_table(entry_id, value, user_id, page_id, field_id, fiel
                   "(id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged) " \
                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
     cursor.execute(sql_command, (entry_id, value, user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date, flagged))
-    db.commit()
+    db_conn.commit()
 
 
 # updates duplicateless table - used to update MySQL table during observation reconciliation, before continuing with phase 2
@@ -106,7 +106,7 @@ def update_duplicateless_table(value, entry_id):
                   "SET value = %s " \
                   "WHERE id = %s;"
     cursor.execute(sql_command, (value, entry_id))
-    db.commit()
+    db_conn.commit()
 
 
 # deletes MySQL table at the very end of post-processing

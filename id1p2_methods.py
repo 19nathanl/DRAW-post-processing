@@ -7,8 +7,12 @@ import database_connection as db
 import datetime
 import post_process_ids.id1.id_1_phase_2 as id_1_phase_2
 
-db = db.db
-cursor = db.cursor()
+cursor = db.cursor
+
+
+# check for possible transcription / observation errors, other than wrong leading digits added
+def check_other_transcription_errors():
+    pass   # TODO : find possible transcription errors
 
 
 # returns True or False, based on whether the function determines that the fluctuation between the current timestamp and BOTH adjacent timestamps
@@ -102,15 +106,15 @@ def equation_resultant_value(entry):
         return None
     equation_num = 0
     match entry[4]:
-        case (4|6):
+        case (4 | 6):
             equation_num = 3
         case 7:
             equation_num = 1
         case 8:
             equation_num = 2
     sql_command = sql.equation_retrieve_row(entry, equation_num)
-    db.cursor.execute(sql_command)
-    row = db.cursor.fetchall()
+    cursor.execute(sql_command)
+    row = cursor.fetchall()
     # remove any values in row that are in disregarded values are None:
     for i in range(len(row) - 1, -1, -1):
         if str(row[i][1]).lower() in [*config.disregarded_values, 'none']:
@@ -237,11 +241,6 @@ def check_lead_digs_with_equation(diff_value, return_list, lead_digs_added_bool)
         return_list[10] = 1
         tables.add_to_final_corrected_table(*return_list)
         tables.add_error_edit_code(2, '002', value, '', return_list)
-
-
-# check for possible transcription / observation errors, other than wrong leading digits added
-def check_other_transcription_errors():
-    pass
 
 
 # returns hash set of id's corresponding to values whose leading digits have been added artificially in phase 1

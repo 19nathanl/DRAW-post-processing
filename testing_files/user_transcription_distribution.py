@@ -2,11 +2,11 @@ import database_connection as db
 import time
 import matplotlib.pyplot as plt
 
-# Pulls all the users in the database, finds how many transcriptions are made by each user, and plots them accordingly.
-# Will help find a sensible cut-off point for users that don't contribute much and therefore probably did not know what they were doing.
+# Pulls all the users in the database, finds how many transcriptions are made by each user, and plots them accordingly. Helps
+# find a sensible cut-off point for users that don't contribute much and therefore probably did not know what they were doing.
 
-db = db.db
-cursor = db.cursor()
+cursor = db.cursor
+
 
 cursor.execute("SELECT * FROM users;")
 users = cursor.fetchall()

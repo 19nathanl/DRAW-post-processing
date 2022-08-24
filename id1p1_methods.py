@@ -5,6 +5,8 @@ import sql_commands as sql
 import database_connection as db
 import tables
 
+cursor = db.cursor
+
 
 ##################### DIRECT EDITING / FIXING METHODS #####################
 
@@ -14,8 +16,8 @@ def reference_previous_values(entry, option):
     def modular_code_block(entry, command, step):
         if command == -1:
             return -1, None
-        db.cursor.execute(command)
-        list_entries = db.cursor.fetchall()
+        cursor.execute(command)
+        list_entries = cursor.fetchall()
         list_values = [item[1] for item in list_entries]
         if step == 2 and len(list_values) == 0:
             return -1, None

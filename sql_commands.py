@@ -23,7 +23,7 @@ composite_raw_data_entries = "CREATE TABLE IF NOT EXISTS data_entries_raw AS SEL
 
 
 def create_error_edit_table(phase):
-    error_edit_code_table = "CREATE TABLE data_entries_phase{}_errors (" \
+    error_edit_code_table = "CREATE TABLE data_entries_phase_{}_errors (" \
                                 "id INT, " \
                                 "ORIGINAL_VALUE TEXT, " \
                                 "CORRECTED_VALUE TEXT, " \

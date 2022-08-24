@@ -11,9 +11,6 @@ import post_process_ids.id1.id_1_phase_2 as id1p2
 import post_process_ids.id1.id_1_outliers as id1outliers
 import id1p2_methods
 
-db = db.db
-cursor = db.cursor()
-
 
 # point data entry to particular post_processing algorithm for phase 1 depending on its post_process_id
 def filter_id(pp_id, entry, phase):
@@ -23,8 +20,8 @@ def filter_id(pp_id, entry, phase):
             match pp_id:
                 case 1:
                     id1p1.phase_1(entry)
-                case 2:
-                    pass
+                case _:
+                    tables.add_to_corrected_table(*entry, 0)
         # phase 2
         case 2:
             match pp_id:
@@ -33,14 +30,14 @@ def filter_id(pp_id, entry, phase):
                         id1p2.phase_2(entry, True)
                     else:
                         id1p2.phase_2(entry, False)
-                case 2:
-                    pass
+                case _:
+                    tables.add_to_final_corrected_table(*entry)
         # outlier removal
         case 'outlier_removal':
             match pp_id:
                 case 1:
                     return id1outliers.patch_outlier(entry)
-                case 2:
+                case _:
                     pass
 
 
@@ -65,7 +62,7 @@ for row in raw_entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 1)
     counter += 1
-    print('Phase 1 :', counter)
+    print('Phase 1:', counter)
 
 
 #####################       RECONCILE VALUES FOR SAME OBSERVATION (FIELD + DATETIME)       ####################################
@@ -92,9 +89,12 @@ for index in range(len(entries)):
 
 pressure_lead_digs_added = id1p2_methods.pressure_artificial_lead_digs_list()
 
+counter = 0
 for row in entries:
     post_process_id = row[8]
     filter_id(post_process_id, row, 2)
+    counter += 1
+    print("Phase 2:", counter)
 
 
 #####################       DELETE ALL DISPENSABLE TABLES (KEEP FINAL + ERRORS/EDITS TABLES)       ############################

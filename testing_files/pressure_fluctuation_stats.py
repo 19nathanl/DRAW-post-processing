@@ -4,8 +4,7 @@ import database_connection as db
 import statistics as stats
 import calendar
 
-db = db.db
-cursor = db.cursor()
+cursor = db.cursor
 
 
 def num_to_month(num):

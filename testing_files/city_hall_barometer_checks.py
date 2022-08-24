@@ -3,8 +3,8 @@ import database_connection as db
 import statistics as stats
 import time
 
-db = db.db
-cursor = db.cursor()
+cursor = db.cursor
+
 
 cursor.execute("SELECT * FROM data_entries_corrected_duplicateless WHERE field_id = 6;")
 baro_inst_cor_list = cursor.fetchall()

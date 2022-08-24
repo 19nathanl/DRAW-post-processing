@@ -1,7 +1,6 @@
 import database_connection as db
 
-db = db.db
-cursor = db.cursor()
+cursor = db.cursor
 
 
 def data_entries_raw(index_type, action):
