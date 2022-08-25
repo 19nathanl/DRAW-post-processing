@@ -2,20 +2,28 @@
 
 import id1p1_methods as methods
 
+
+# assigning post-process ID's to field ID's
+ppid_to_field_id = {1: (4, 6, 7, 8, 67, 69),
+                    2: 14,
+                    3: (9, 10, 11, 12)
+                    }
+
+
 # unexpected characters in a data entry (when not surrounded on either side by digits)  TODO : determine if any alterations necessary for non-pressure values
-unexpected_characters = ['?', '.', '*', '&', '#', '^', '$', '(', ')', '[', ']', '{', '}', '"', '/', '@', "\\"]
+unexpected_characters = {'?', '.', '*', '&', '#', '^', '$', '(', ')', '[', ']', '{', '}', '"', '/', '@', "\\"}
 
 
 # characters that could potentially have replaced decimal point in a numerical data entry
-decimal_point_alternates = [';', '-', '/', ',']
+decimal_point_alternates = {';', '-', '/', ','}
 
 
 # values that can be disregarded automatically; method converts all data entries to lowercase to catch edge cases where term is capitalized or uncapitalized irregularly
-disregarded_values = ['empty', 'blank', 'retracted', 'empty / blank', 'vide', 'none existant', 'illegible', '']
+disregarded_values = {'empty', 'blank', 'retracted', 'empty / blank', 'vide', 'none existant', 'illegible', ''}
 
 
 # possible leading digits for a pressure value:
-possible_lead_digits_pressure = ['28', '29', '30', '31']
+possible_lead_digits_pressure = {'28', '29', '30', '31'}
 
 
 # possible correct formats that a value can be in, for cases where we want to retrieve leading digits from it (True) or use the whole value (False):
