@@ -58,8 +58,6 @@ def patch_outlier(entry):
                 tables.update_duplicateless_table(value, entry[0])
                 tables.add_error_edit_code(2, '121', original_value, value, entry)
                 return value
-            else:
-                pass  # TODO : FLAG
 
         else:
             return None

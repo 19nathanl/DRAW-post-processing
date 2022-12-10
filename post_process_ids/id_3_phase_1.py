@@ -6,3 +6,4 @@ import tables
 def phase_1(entry):
     return_list = list(entry)
     value = entry[1]
+
