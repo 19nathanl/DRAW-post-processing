@@ -2,11 +2,16 @@ import mysql.connector
 import sql_commands
 import os
 
+
 # connection to copy of database on local machine
 conn = mysql.connector.connect(
-    user=os.environ.get('DRAW_local_db_user'),
-    password=os.environ.get('DRAW_local_db_pass'),
-    database='climatedatarescueprocessed',
+    #####   FOLLOWING 3 VARIABLES TO BE CONFIGURED AS NECESSARY FOR LOCAL MACHINE:   #####
+    # user=os.environ.get('DRAW_local_db_user'),
+    # password=os.environ.get('DRAW_local_db_pass'),
+    user='Nathan',
+    password='123456',
+    database='climatedatarescueprocessed_test',
+
     host='localhost'
 )
 

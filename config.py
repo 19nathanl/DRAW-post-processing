@@ -4,6 +4,7 @@ import id1p1_methods as methods
 
 
 # assigning post-process ID's to field ID's
+# assign a TUPLE to multiple field_id's with one PPID; otherwise assign integer for single field_id
 ppid_to_field_id = {1: (4, 6, 7, 8, 67, 69),
                     2: 14,
                     3: (9, 10, 11, 12)
@@ -46,7 +47,7 @@ scalar_fluctuation_thresholds = {'01': 0.00, '02': 0.00, '03': 0.00, '04': 0.00,
                                  '07': 0.00, '08': 0.00, '09': 0.00, '10': 0.00, '11': 0.00, '12': 0.00}
 
 # amount of time (in hours) between timestamps, for which a pressure fluctuation isn't granular enough
-time_delta_limit = 12
+time_delta_limit = 12  # TODO : change to 3
 
 # threshold value for which difference between transcribed and equation value requires further investigation (phase 2)
 pressure_diff_threshold = 0.300

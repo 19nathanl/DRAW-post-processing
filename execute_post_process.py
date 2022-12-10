@@ -50,6 +50,7 @@ mysql_indexes.data_entries_raw('user', 'create')
 remove_ltu.delete_transcriptions()
 mysql_indexes.data_entries_raw('user', 'delete')
 
+
 #####################       EXECUTE PHASE 1 (FORMAT CHECKING/CLEANING)       ##################################################
 mysql_indexes.data_entries_raw('annotation', 'create')
 mysql_indexes.data_entries_raw('field_date', 'create')
