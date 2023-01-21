@@ -245,6 +245,6 @@ def check_lead_digs_with_equation(diff_value, return_list, lead_digs_added_bool)
 
 # returns hash set of id's corresponding to values whose leading digits have been added artificially in phase 1
 def pressure_artificial_lead_digs_list():
-    cursor.execute("SELECT * FROM data_entries_phase1_errors "
+    cursor.execute("SELECT * FROM data_entries_phase_1_errors "
                    "WHERE error_code IN (110,115);")
     return set([item[0] for item in cursor.fetchall()])
