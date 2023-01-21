@@ -87,7 +87,7 @@ def add_to_final_corrected_table(entry_id, value, user_id, page_id, field_id, fi
     db_conn.commit()
 
 
-# add flag or edit made to particular value to "data_entries_phase{}_errors" table (depending on chosen input parameter, can be for phase 1 or 2)
+# add flag or edit made to particular value to "data_entries_phase_{}_errors" table (depending on chosen input parameter, can be for phase 1 or 2)
 def add_error_edit_code(phase, error_code, original_value, corrected_value, entry_list, add_info=''):
     entry_id = entry_list[0]
     user_id, page_id, field_id, field_key, annotation_id, transcription_id, post_process_id, observation_date = [None for i in range(8)]
